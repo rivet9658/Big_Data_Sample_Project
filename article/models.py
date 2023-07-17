@@ -1,7 +1,6 @@
 # package
 from django.db import models
 from django.utils import timezone
-
 # models
 from base_app.models import BaseModel
 from emoji.models import EmojiModel
@@ -13,7 +12,7 @@ class ArticleModel(BaseModel):
     title = models.CharField(max_length=50, verbose_name='文章標題')
     introduction = models.TextField(default='', verbose_name='文章簡介')
     is_publish = models.BooleanField(default=True, verbose_name='是否發佈')
-    timestamp = models.DateTimeField(default=timezone.now, verbose_name='時間戳記(要顯示的日期時間)')
+    publish_datetime = models.DateTimeField(default=timezone.now, verbose_name='發佈日期')
     have_emoji = models.ManyToManyField(
         EmojiModel, through='ArticleHaveEmojiModel', through_fields=('belong_article', 'belong_emoji'),
         related_name='article_have_emoji', verbose_name='文章所含有之表情'
