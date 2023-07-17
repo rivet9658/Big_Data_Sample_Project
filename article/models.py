@@ -9,7 +9,7 @@ from tag.models import TagModel
 
 
 class ArticleModel(BaseModel):
-    title = models.CharField(max_length=50, verbose_name='文章標題')
+    title = models.CharField(max_length=150, verbose_name='文章標題')
     introduction = models.TextField(default='', verbose_name='文章簡介')
     is_publish = models.BooleanField(default=True, verbose_name='是否發佈')
     publish_datetime = models.DateTimeField(default=timezone.now, verbose_name='發佈日期')

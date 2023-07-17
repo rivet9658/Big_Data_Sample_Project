@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 # models
-from article.models import ArticleModel
+from article.models import ArticleModel, ArticleHaveTagModel
 # serializers
 from article.serializers import GetArticleSerializer, EditArticleSerializer
 # permission
@@ -32,14 +32,16 @@ class ArticleView(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         operation_summary='文章-獲取所有文章列表',
-        operation_description='請求所有文章列表',
+        operation_description='請求所有文章列表，過濾參數不輸入則那項不加入過濾',
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
-            openapi.Parameter('is_publish', openapi.IN_QUERY, description="文章是否發佈(不選擇則為全部)",
+            openapi.Parameter('is_publish', openapi.IN_QUERY, description="是否發佈",
                               type=openapi.TYPE_BOOLEAN),
             openapi.Parameter('start_publish_date', openapi.IN_QUERY, description="發佈日期區間-開始",
                               type=openapi.TYPE_STRING),
             openapi.Parameter('end_publish_date', openapi.IN_QUERY, description="發佈日期區間-結束",
+                              type=openapi.TYPE_STRING),
+            openapi.Parameter('tags', openapi.IN_QUERY, description="標籤，請用,分隔",
                               type=openapi.TYPE_STRING),
         ]
     )
@@ -47,22 +49,28 @@ class ArticleView(viewsets.ModelViewSet):
         filter_is_publish = request.GET.get('is_publish')
         filter_start_date = request.GET.get('start_publish_date')
         filter_end_date = request.GET.get('end_publish_date')
+        filter_tags = request.GET.get('tags')
 
         if filter_is_publish:
-            filter_is_publish = filter_is_publish.lower() == 'true'
+            filter_is_publish = filter_is_publish.lower() == 'true' or filter_is_publish == '1'
             queryset = ArticleModel.objects.filter(is_publish=filter_is_publish)
-        elif filter_start_date and filter_end_date:
+        else:
+            queryset = ArticleModel.objects.all()
+        if filter_start_date and filter_end_date:
             try:
                 filter_start_datetime = datetime.strptime(filter_start_date, '%Y-%m-%d')
                 filter_end_datetime = datetime.strptime(filter_end_date, '%Y-%m-%d')
                 filter_end_datetime = filter_end_datetime.replace(hour=23, minute=59, second=59)
-                queryset = ArticleModel.objects.filter(
-                    publish_datetime__range=(filter_start_datetime, filter_end_datetime))
+                queryset = queryset.filter(publish_datetime__range=(filter_start_datetime, filter_end_datetime))
             except ValueError:
-                return Response({'msg': '發佈日期區間格式錯誤', 'data': 'start_publish_date or end_publish_date format error'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        else:
-            queryset = ArticleModel.objects.all()
+                return Response(
+                    {'msg': '發佈日期區間格式錯誤', 'data': 'start_publish_date or end_publish_date format error'},
+                    status=status.HTTP_400_BAD_REQUEST)
+        if filter_tags:
+            now_article_have_tags = ArticleHaveTagModel.objects.filter(belong_article__in=queryset)
+            now_tag_list = filter_tags.split(',')
+            now_article = now_article_have_tags.filter(belong_tag__name__in=now_tag_list)
+            queryset = queryset.filter(id__in=now_article.values('belong_article_id'))
 
         serializer = self.get_serializer(queryset, many=True)
         return Response({'msg': '獲得文章列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -70,6 +78,9 @@ class ArticleView(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary='文章-獲取單一文章',
         operation_description='請求單一文章',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ]
     )
     def retrieve(self, request, pk=None, *args, **kwargs):
         queryset = ArticleModel.objects.all()
@@ -80,6 +91,9 @@ class ArticleView(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary='文章-新增文章',
         operation_description='新增文章',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ]
     )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -93,6 +107,9 @@ class ArticleView(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary='文章-更新文章',
         operation_description='更新文章',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ]
     )
     def update(self, request, pk=None, *args, **kwargs):
         queryset = ArticleModel.objects.filter(id=pk)
@@ -110,6 +127,9 @@ class ArticleView(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary='文章-刪除文章',
         operation_description='刪除文章',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ]
     )
     def destroy(self, request, pk=None, *args, **kwargs):
         queryset = ArticleModel.objects.filter(id=pk)

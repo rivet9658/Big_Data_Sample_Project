@@ -18,12 +18,13 @@ class GetArticleSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source='create_user.username', allow_null=True, label='作者')
     image_list = serializers.SerializerMethodField('get_article_title_file', label='文章標題圖片')
     have_paragraph = serializers.SerializerMethodField('get_article_have_paragraph', label='文章所含段落(id)')
+    have_tag = serializers.SerializerMethodField('get_article_have_tag', label='文章所含標籤(name)')
     have_comment = serializers.SerializerMethodField('get_article_have_comment', label='文章所含留言(id)')
 
     class Meta:
         model = ArticleModel
         fields = ('id', 'author', 'title', 'introduction', 'publish_datetime', 'image_list', 'have_paragraph',
-                  'have_comment')
+                  'have_tag', 'have_comment')
 
     def get_article_title_file(self, instance):
         title_image_list = ArticleHaveImageModel.objects.filter(belong_article=instance, order=0)
@@ -32,6 +33,10 @@ class GetArticleSerializer(serializers.ModelSerializer):
 
     def get_article_have_paragraph(self, instance):
         return ParagraphModel.objects.filter(belong_article=instance).values('id', 'order')
+
+    def get_article_have_tag(self, instance):
+        return list(ArticleHaveTagModel.objects.filter(belong_article=instance).
+                    values_list('belong_tag__name', flat=True))
 
     def get_article_have_comment(self, instance):
         return CommentModel.objects.filter(belong_article=instance).values('id')

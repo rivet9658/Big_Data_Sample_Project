@@ -11,7 +11,7 @@ def now_order(instance):
 
 
 class ParagraphModel(BaseModel):
-    title = models.CharField(max_length=50, verbose_name='段落標題')
+    title = models.CharField(max_length=150, verbose_name='段落標題')
     content = models.TextField(default='', verbose_name='段落內文')
     order = models.IntegerField(default=now_order, verbose_name='段落順序')
     style_code = models.CharField(default='1', max_length=30, verbose_name='版型代號')
