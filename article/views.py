@@ -8,9 +8,11 @@ from rest_framework.permissions import IsAuthenticated
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 # models
-from article.models import ArticleModel, ArticleHaveTagModel
+from article.models import ArticleModel, ArticleHaveTagModel, ArticleHaveEmojiModel
+from emoji.models import EmojiModel
 # serializers
-from article.serializers import GetArticleSerializer, EditArticleSerializer
+from article.serializers import GetArticleSerializer, EditArticleSerializer, \
+    GetStatisticalArticleHaveEmojiSerializer, CreateArticleHaveEmojiSerializer
 # permission
 from article.permission import ArticlePermission
 
@@ -27,12 +29,16 @@ class ArticleView(viewsets.ModelViewSet):
             return GetArticleSerializer
         elif self.action in ['create', 'update', 'partial_update']:
             return EditArticleSerializer
+        elif self.action in ['get_emoji']:
+            return GetStatisticalArticleHaveEmojiSerializer
+        elif self.action in ['add_emoji']:
+            return CreateArticleHaveEmojiSerializer
         else:
             return GetArticleSerializer
 
     @swagger_auto_schema(
-        operation_summary='文章-獲取所有文章列表',
-        operation_description='請求所有文章列表，過濾參數不輸入則那項不加入過濾',
+        operation_summary='文章-獲取文章列表',
+        operation_description='請求文章列表，過濾參數不輸入則那項不加入過濾',
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
             openapi.Parameter('is_publish', openapi.IN_QUERY, description="是否發佈",
@@ -64,13 +70,14 @@ class ArticleView(viewsets.ModelViewSet):
                 queryset = queryset.filter(publish_datetime__range=(filter_start_datetime, filter_end_datetime))
             except ValueError:
                 return Response(
-                    {'msg': '發佈日期區間格式錯誤', 'data': 'start_publish_date or end_publish_date format error'},
+                    {'msg': '發佈日期區間格式錯誤', 'data': []},
                     status=status.HTTP_400_BAD_REQUEST)
         if filter_tags:
             now_article_have_tags = ArticleHaveTagModel.objects.filter(belong_article__in=queryset)
             now_tag_list = filter_tags.split(',')
-            now_article = now_article_have_tags.filter(belong_tag__name__in=now_tag_list)
-            queryset = queryset.filter(id__in=now_article.values('belong_article_id'))
+            for tag in now_tag_list:
+                now_article_have_tags = now_article_have_tags.filter(belong_tag__name__contains=tag)
+            queryset = queryset.filter(id__in=now_article_have_tags.values('belong_article_id'))
 
         serializer = self.get_serializer(queryset, many=True)
         return Response({'msg': '獲得文章列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -112,17 +119,28 @@ class ArticleView(viewsets.ModelViewSet):
         ]
     )
     def update(self, request, pk=None, *args, **kwargs):
-        queryset = ArticleModel.objects.filter(id=pk)
-        if len(queryset) <= 0:
-            return Response({'msg': '查無更新目標資料', 'data': 'not found data'},
+        queryset = ArticleModel.objects.filter(id=pk).first()
+        if not queryset:
+            return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(queryset[0], data=request.data, partial=True)
+        serializer = self.get_serializer(queryset, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response({'msg': '文章更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response({'msg': '文章更新成功', 'data': serializer.data},
                         status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='不支援此操作',
+        operation_description='不支援此操作',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ]
+    )
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        return Response({'msg': '不支援此操作', 'data': []},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
         operation_summary='文章-刪除文章',
@@ -132,10 +150,59 @@ class ArticleView(viewsets.ModelViewSet):
         ]
     )
     def destroy(self, request, pk=None, *args, **kwargs):
-        queryset = ArticleModel.objects.filter(id=pk)
-        if len(queryset) <= 0:
-            return Response({'msg': '查無刪除目標資料', 'data': 'not found data'},
+        queryset = ArticleModel.objects.filter(id=pk).first()
+        if not queryset:
+            return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        queryset[0].delete()
-        return Response({'msg': '文章刪除成功', 'data': 'success'},
+        queryset.delete()
+        return Response({'msg': '文章刪除成功', 'data': []},
+                        status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-獲得表情統計列表',
+        operation_description='文章獲得表情統計列表',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['GET'], detail=True, url_path='get_emoji')
+    def get_emoji(self, request, pk=None, *args, **kwargs):
+        queryset = ArticleModel.objects.filter(id=pk).first()
+        if not queryset:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({'msg': '獲得表情統計列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-新增表情',
+        operation_description='文章新增表情',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['POST'], detail=True, url_path='add_emoji')
+    def add_emoji(self, request, pk=None, *args, **kwargs):
+        article = ArticleModel.objects.filter(id=pk).first()
+        if not article:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        emoji_name = request.data.get('emoji')
+        if not emoji_name:
+            return Response({'msg': '請指定要給予的表情', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        emoji = EmojiModel.objects.filter(name=emoji_name).first()
+        if not emoji:
+            return Response({'msg': '查無目標表情', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        need_create_data = {
+            'belong_article': article,
+            'belong_emoji': emoji,
+        }
+        serializer = self.get_serializer(data=need_create_data)
+        if not serializer.is_valid():
+            return Response({'msg': '文章新增表情失敗', 'data': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({'msg': '文章新增表情成功', 'data': {'article': article.title, 'emoji': emoji_name}},
                         status=status.HTTP_200_OK)
