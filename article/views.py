@@ -12,7 +12,8 @@ from article.models import ArticleModel, ArticleHaveTagModel, ArticleHaveEmojiMo
 from emoji.models import EmojiModel
 # serializers
 from article.serializers import GetArticleSerializer, EditArticleSerializer, \
-    GetStatisticalArticleHaveEmojiSerializer, CreateArticleHaveEmojiSerializer
+    StatisticsArticleHaveEmojiSerializer, AddArticleHaveEmojiSerializer, GetListArticleHaveTagSerializer, \
+    EditArticleHaveTagSerializer
 # permission
 from article.permission import ArticlePermission
 
@@ -30,9 +31,13 @@ class ArticleView(viewsets.ModelViewSet):
         elif self.action in ['create', 'update', 'partial_update']:
             return EditArticleSerializer
         elif self.action in ['get_emoji']:
-            return GetStatisticalArticleHaveEmojiSerializer
+            return StatisticsArticleHaveEmojiSerializer
         elif self.action in ['add_emoji']:
-            return CreateArticleHaveEmojiSerializer
+            return AddArticleHaveEmojiSerializer
+        elif self.action in ['get_tag']:
+            return GetListArticleHaveTagSerializer
+        elif self.action in ['add_tag', 'delete_tag']:
+            return EditArticleHaveTagSerializer
         else:
             return GetArticleSerializer
 
@@ -171,8 +176,8 @@ class ArticleView(viewsets.ModelViewSet):
         if not queryset:
             return Response({'msg': '查無文章資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({'msg': '獲得表情統計列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(queryset)
+        return Response({'msg': '獲得文章表情統計列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_summary='文章-新增表情',
@@ -187,22 +192,103 @@ class ArticleView(viewsets.ModelViewSet):
         if not article:
             return Response({'msg': '查無文章資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        emoji_name = request.data.get('emoji')
-        if not emoji_name:
+        emoji_code = request.data.get('emoji_code')
+        if not emoji_code:
             return Response({'msg': '請指定要給予的表情', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        emoji = EmojiModel.objects.filter(name=emoji_name).first()
+        emoji = EmojiModel.objects.filter(code=emoji_code).first()
         if not emoji:
             return Response({'msg': '查無目標表情', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
+        if ArticleHaveEmojiModel.objects.filter(belong_article=article, create_user=request.user).exists():
+            return Response({'msg': '你已經評論過該文章了', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
         need_create_data = {
-            'belong_article': article,
-            'belong_emoji': emoji,
+            'belong_article': article.id,
+            'belong_emoji': emoji.id,
         }
         serializer = self.get_serializer(data=need_create_data)
         if not serializer.is_valid():
             return Response({'msg': '文章新增表情失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章新增表情成功', 'data': {'article': article.title, 'emoji': emoji_name}},
+        return Response({'msg': '文章新增表情成功', 'data': {'article': article.title, 'emoji': emoji_code}},
+                        status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-獲得標籤列表',
+        operation_description='文章獲得標籤列表',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['GET'], detail=True, url_path='get_tag')
+    def get_tag(self, request, pk=None, *args, **kwargs):
+        queryset = ArticleModel.objects.filter(id=pk).first()
+        if not queryset:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(queryset)
+        return Response({'msg': '獲得文章標籤列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-新增標籤',
+        operation_description='文章新增標籤',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['POST'], detail=True, url_path='add_tag')
+    def add_tag(self, request, pk=None, *args, **kwargs):
+        article = ArticleModel.objects.filter(id=pk).first()
+        if not article:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        tag_list = request.data.get('tag_list')
+        if not tag_list:
+            return Response({'msg': '請指定標籤列表', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        need_create_data = {
+            'belong_article': article.id,
+            'tag_list': tag_list,
+        }
+        serializer = self.get_serializer(data=need_create_data)
+        if not serializer.is_valid():
+            return Response({'msg': '文章新增標籤失敗', 'data': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({'msg': '文章新增標籤成功', 'data': {'article': article.title, 'tag_list': tag_list}},
+                        status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-刪除標籤',
+        operation_description='文章刪除標籤',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['DELETE'], detail=True, url_path='delete_tag')
+    def delete_tag(self, request, pk=None, *args, **kwargs):
+        article = ArticleModel.objects.filter(id=pk).first()
+        if not article:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        tag_list = request.data.get('tag_list')
+        if not tag_list:
+            return Response({'msg': '請指定標籤列表', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        need_delete_data = {
+            'belong_article': article.id,
+            'tag_list': tag_list,
+        }
+        serializer = self.get_serializer(data=need_delete_data)
+        if not serializer.is_valid():
+            return Response({'msg': '文章刪除標籤失敗', 'data': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+        for tag_data in serializer.validated_data['tag_list']:
+            now_tag = ArticleHaveTagModel.objects.filter(belong_article=article, belong_tag__name=tag_data['name'])
+            if now_tag.exists():
+                now_tag.first().delete()
+
+        return Response({'msg': '文章刪除標籤成功', 'data': []},
                         status=status.HTTP_200_OK)

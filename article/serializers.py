@@ -48,23 +48,23 @@ class GetArticleSerializer(serializers.ModelSerializer):
 
 
 # 建立或更新文章時，所使用之段落序列化格式
-class ArticleEditParagraphSerializer(serializers.ModelSerializer):
+class ArticleEditHaveParagraphSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParagraphModel
         fields = ('title', 'content', 'order', 'style_code')
 
 
 # 建立或更新文章時，所使用之標籤序列化格式
-class ArticleEditTagSerializer(serializers.ModelSerializer):
+class ArticleEditHaveTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = TagModel
         fields = ('name',)
 
 
 class EditArticleSerializer(serializers.ModelSerializer):
-    paragraph_list = serializers.ListField(write_only=True, child=ArticleEditParagraphSerializer(),
+    paragraph_list = serializers.ListField(write_only=True, child=ArticleEditHaveParagraphSerializer(),
                                            label='文章段落列表')
-    tag_list = serializers.ListField(write_only=True, child=ArticleEditTagSerializer(), label='文章標籤列表')
+    tag_list = serializers.ListField(write_only=True, child=ArticleEditHaveTagSerializer(), label='文章標籤列表')
 
     class Meta:
         model = ArticleModel
@@ -146,7 +146,7 @@ class EditArticleSerializer(serializers.ModelSerializer):
         return article
 
 
-class GetStatisticalArticleHaveEmojiSerializer(serializers.ModelSerializer):
+class StatisticsArticleHaveEmojiSerializer(serializers.ModelSerializer):
     emoji_count = serializers.SerializerMethodField('article_have_emoji_count', label='文章含有表情')
 
     class Meta:
@@ -154,12 +154,20 @@ class GetStatisticalArticleHaveEmojiSerializer(serializers.ModelSerializer):
         fields = ('emoji_count',)
 
     def article_have_emoji_count(self, instance):
-        now_have_emoji = ArticleHaveEmojiModel.objects.filter(belong_article=instance)
+        return_data = []
+        all_emoji = EmojiModel.objects.all()
+        for emoji_data in all_emoji:
+            emoji_count = ArticleHaveEmojiModel.objects.filter(belong_article=instance, belong_emoji=emoji_data).count()
+            return_data.append({
+                'emoji_code': emoji_data.code,
+                'emoji_name': emoji_data.name,
+                'count': emoji_count
+            })
 
-        return now_have_emoji.count()
+        return return_data
 
 
-class CreateArticleHaveEmojiSerializer(serializers.ModelSerializer):
+class AddArticleHaveEmojiSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleHaveEmojiModel
         fields = ('belong_article', 'belong_emoji')
@@ -169,4 +177,50 @@ class CreateArticleHaveEmojiSerializer(serializers.ModelSerializer):
         now_requester = self.context['request'].user
         validated_data['create_user'] = now_requester
         validated_data['updated_user'] = now_requester
-        return ArticleHaveEmojiModel.objects.create(validated_data)
+        return ArticleHaveEmojiModel.objects.create(**validated_data)
+
+
+class GetListArticleHaveTagSerializer(serializers.ModelSerializer):
+    tag_list = serializers.SerializerMethodField('get_tag_list', label='文章標籤列表')
+
+    class Meta:
+        model = ArticleHaveTagModel
+        fields = ('tag_list',)
+
+    def get_tag_list(self, instance):
+        return_data = []
+        tag_list = ArticleHaveTagModel.objects.filter(belong_article=instance)
+        for tag_data in tag_list:
+            return_data.append(tag_data.belong_tag.name)
+        return return_data
+
+
+class EditArticleHaveTagSerializer(serializers.ModelSerializer):
+    tag_list = serializers.ListField(write_only=True, child=ArticleEditHaveTagSerializer(), label='文章標籤列表')
+
+    class Meta:
+        model = ArticleHaveTagModel
+        fields = ('belong_article', 'tag_list')
+
+    def create(self, validated_data):
+        now_requester = self.context['request'].user
+        for tag_data in validated_data['tag_list']:
+            filter_tag = TagModel.objects.filter(name=tag_data['name'])
+            if filter_tag.exists():
+                filter_tag = filter_tag.first()
+            else:
+                filter_tag = TagModel.objects.create(
+                    name=tag_data['name'],
+                    create_user=now_requester,
+                    updated_user=now_requester
+                )
+            check_have_tag = ArticleHaveTagModel.objects.filter(belong_article=validated_data['belong_article'],
+                                                                belong_tag=filter_tag)
+            if not check_have_tag.exists():
+                ArticleHaveTagModel.objects.create(
+                    belong_article=validated_data['belong_article'],
+                    belong_tag=filter_tag,
+                    create_user=now_requester,
+                    updated_user=now_requester
+                )
+        return validated_data
