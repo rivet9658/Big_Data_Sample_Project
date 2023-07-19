@@ -1,0 +1,32 @@
+version: "1"
+
+services:
+  # Django 服務
+  web:
+    image: big_data_sample_project
+    container_name: big_data_sample_project
+    restart: always
+    ports:
+      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    environment:
+      - DEBUG=True
+    dns: 8.8.8.8
+
+  # MariaDB 資料庫
+  db:
+    image: mariadb:latest
+    container_name: big_data_mariadb
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb:/var/lib/mysql
+      - ./mariadb/log:/var/log
+    environment:
+      - MYSQL_ROOT_PASSWORD: '1qaz@WS3edc'
+      - MYSQL_DATABASE: 'big_data_sample_prj'
+      - MYSQL_USER: 'admin'
+      - MYSQL_PASSWORD: '1qaz@WS3edc'
