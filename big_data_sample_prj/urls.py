@@ -31,6 +31,7 @@ from drf_yasg import openapi
 # views
 from article.views import ArticleView
 from paragraph.views import ParagraphView
+from comment.views import CommentView
 from emoji.views import EmojiView
 from tag.views import TagView
 
@@ -59,6 +60,7 @@ schema_view = get_schema_view(
 view_list = [
     {'url_name': 'article', 'view': ArticleView, 'basename': 'article'},
     {'url_name': 'paragraph', 'view': ParagraphView, 'basename': 'paragraph'},
+    {'url_name': 'comment', 'view': CommentView, 'basename': 'comment'},
     {'url_name': 'emoji', 'view': EmojiView, 'basename': 'emoji'},
     {'url_name': 'tag', 'view': TagView, 'basename': 'tag'},
 ]
