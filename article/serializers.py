@@ -26,22 +26,12 @@ class EditArticleHaveImageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         now_requester = self.context.get('requester')
         belong_article = self.context.get('belong_article')
-        check_order = ArticleHaveImageModel.objects.filter(belong_article=belong_article, order=validated_data['order'])
-        if check_order.exists():
-            now_image = check_order.first()
-            now_image.image = validated_data['image']
-            now_image.source = validated_data['source']
-            now_image.updated_user = now_requester
-            now_image.save()
-            now_image.name = unquote(now_image.image.url.split('/')[-1])
-            now_image.save()
-        else:
-            validated_data['belong_article'] = belong_article
-            validated_data['create_user'] = now_requester
-            validated_data['updated_user'] = now_requester
-            now_image = ArticleHaveImageModel.objects.create(**validated_data)
-            now_image.name = unquote(now_image.image.url.split('/')[-1])
-            now_image.save()
+        validated_data['belong_article'] = belong_article
+        validated_data['create_user'] = now_requester
+        validated_data['updated_user'] = now_requester
+        now_image = ArticleHaveImageModel.objects.create(**validated_data)
+        now_image.name = unquote(now_image.image.url.split('/')[-1])
+        now_image.save()
         return now_image
 
 

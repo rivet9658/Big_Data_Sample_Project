@@ -459,7 +459,7 @@ class ArticleView(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         operation_summary='文章-新增含有圖片',
-        operation_description='新增指定文章的含有圖片(資料格式form-data)，若指定的order已經有圖片，將會取代',
+        operation_description='新增指定文章的含有圖片(資料格式form-data)',
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
         ],
@@ -489,21 +489,21 @@ class ArticleView(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         operation_summary='文章-刪除含有圖片',
-        operation_description='刪除指定文章指定順序的含有圖片(資料格式form-data)',
+        operation_description='刪除指定id的圖片資料',
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
-            openapi.Parameter('order', openapi.IN_QUERY, description="第幾段落", type=openapi.TYPE_STRING),
+            openapi.Parameter('image_id', openapi.IN_QUERY, description="圖片id", type=openapi.TYPE_STRING),
         ],
     )
-    @action(methods=['DELETE'], detail=True, url_path='delete_image')
-    def delete_image(self, request, pk=None, *args, **kwargs):
-        article = ArticleModel.objects.filter(id=pk).first()
-        if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+    @action(methods=['DELETE'], detail=False, url_path='delete_image')
+    def delete_image(self, request, *args, **kwargs):
+        image_id = request.GET.get('image_id')
+        if image_id is None:
+            return Response({'msg': '請指定圖片id', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        order = request.GET.get('order')
-        if order is None:
-            return Response({'msg': '請指定第幾段落', 'data': []},
+        now_delete = ArticleHaveImageModel.objects.filter(id=image_id)
+        if not now_delete.exists():
+            return Response({'msg': '查無圖片資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        ArticleHaveImageModel.objects.filter(belong_article=article, order=order).delete()
+        now_delete.first().delete()
         return Response({'msg': '刪除含有圖片成功', 'data': []}, status=status.HTTP_200_OK)
