@@ -2,6 +2,8 @@
 from rest_framework import serializers
 # models
 from tag.models import TagModel
+# serializers
+from article.serializers import TagListSerializer
 
 
 class GetTagSerializer(serializers.ModelSerializer):
@@ -11,7 +13,7 @@ class GetTagSerializer(serializers.ModelSerializer):
 
 
 class CreateTagSerializer(serializers.ModelSerializer):
-    tag_list = serializers.ListField(child=serializers.CharField(), label='標籤名稱列表')
+    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label='文章標籤列表')
 
     class Meta:
         model = TagModel
@@ -21,7 +23,7 @@ class CreateTagSerializer(serializers.ModelSerializer):
         now_requester = self.context['request'].user
         for tag_data in validated_data['tag_list']:
             TagModel.objects.create(
-                name=tag_data,
+                name=tag_data['name'],
                 create_user=now_requester,
                 updated_user=now_requester
             )

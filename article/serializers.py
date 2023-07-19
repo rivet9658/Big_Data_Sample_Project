@@ -1,15 +1,17 @@
 # package
 from rest_framework import serializers
 # models
-from article.models import ArticleModel, ArticleHaveImageModel, ArticleHaveEmojiModel, ArticleHaveTagModel
+from article.models import ArticleModel, ArticleHaveImageModel, ArticleHaveEmojiModel, ArticleHaveMediaModel, \
+    ArticleHaveTagModel
 from paragraph.models import ParagraphModel
 from comment.models import CommentModel
 from emoji.models import EmojiModel
+from media.models import MediaModel
 from tag.models import TagModel
 
 
 # 標題圖片資料序列化格式
-class GetArticleHaveImageSerializer(serializers.ModelSerializer):
+class GetListArticleHaveImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleHaveImageModel
         fields = ('id', 'name', 'source', 'image')
@@ -30,7 +32,7 @@ class GetArticleSerializer(serializers.ModelSerializer):
     # 取得文章標題圖片
     def get_article_title_image(self, instance):
         title_image_list = ArticleHaveImageModel.objects.filter(belong_article=instance, order=0)
-        return_data = GetArticleHaveImageSerializer(title_image_list, many=True).data
+        return_data = GetListArticleHaveImageSerializer(title_image_list, many=True).data
         return return_data
 
     # 取得文章所含段落(id)
@@ -39,32 +41,31 @@ class GetArticleSerializer(serializers.ModelSerializer):
 
     # 取得文章所含標籤(name)
     def get_article_have_tag(self, instance):
-        return list(ArticleHaveTagModel.objects.filter(belong_article=instance).
-                    values_list('belong_tag__name', flat=True))
+        return ArticleHaveTagModel.objects.filter(belong_article=instance).values_list('belong_tag__name', flat=True)
 
     # 取得文章所含留言(id)
     def get_article_have_comment(self, instance):
-        return CommentModel.objects.filter(belong_article=instance).values('id')
+        return CommentModel.objects.filter(belong_article=instance).values_list('id', flat=True)
 
 
 # 建立或更新文章時，所使用之段落序列化格式
-class ArticleEditHaveParagraphSerializer(serializers.ModelSerializer):
+class ParagraphListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParagraphModel
         fields = ('title', 'content', 'order', 'style_code')
 
 
 # 建立或更新文章時，所使用之標籤序列化格式
-class ArticleEditHaveTagSerializer(serializers.ModelSerializer):
+class TagListSerializer(serializers.ModelSerializer):
     class Meta:
         model = TagModel
         fields = ('name',)
 
 
 class EditArticleSerializer(serializers.ModelSerializer):
-    paragraph_list = serializers.ListField(write_only=True, child=ArticleEditHaveParagraphSerializer(),
+    paragraph_list = serializers.ListField(write_only=True, child=ParagraphListSerializer(),
                                            label='文章段落列表')
-    tag_list = serializers.ListField(write_only=True, child=ArticleEditHaveTagSerializer(), label='文章標籤列表')
+    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label='文章標籤列表')
 
     class Meta:
         model = ArticleModel
@@ -91,7 +92,10 @@ class EditArticleSerializer(serializers.ModelSerializer):
             if filter_paragraph.exists():  # 如果存在，則更新該段落資料
                 filter_paragraph.update(**paragraph_data)
                 if paragraph_data['order'] in original_order_list:
-                    original_order_list.remove(paragraph_data['order'])
+                    try:
+                        original_order_list.remove(paragraph_data['order'])
+                    except ValueError:
+                        pass
             else:  # 如果不存在，則新增該段落資料
                 paragraph_data['create_user'] = now_requester
                 paragraph_data['belong_article'] = article
@@ -110,7 +114,10 @@ class EditArticleSerializer(serializers.ModelSerializer):
             if filter_tag.exists():  # 如果存在，則更新該標籤資料
                 now_tag = filter_tag.first()
                 if now_tag.id in original_tag_id_list:
-                    original_tag_id_list.remove(now_tag.id)
+                    try:
+                        original_tag_id_list.remove(now_tag.id)
+                    except ValueError:
+                        pass
             else:  # 如果不存在，則新增該標籤資料
                 tag_data['create_user'] = now_requester
                 tag_data['updated_user'] = now_requester
@@ -168,16 +175,21 @@ class StatisticsArticleHaveEmojiSerializer(serializers.ModelSerializer):
 
 
 class AddArticleHaveEmojiSerializer(serializers.ModelSerializer):
+    emoji_code = serializers.CharField(label='表情代碼')
+
     class Meta:
         model = ArticleHaveEmojiModel
-        fields = ('belong_article', 'belong_emoji')
+        fields = ('emoji_code',)
 
     def create(self, validated_data):
-        # 整理資料並建立文章表情符號關聯
-        now_requester = self.context['request'].user
-        validated_data['create_user'] = now_requester
-        validated_data['updated_user'] = now_requester
-        return ArticleHaveEmojiModel.objects.create(**validated_data)
+        now_requester = self.context.get('requester')
+        belong_article = self.context.get('belong_article')
+        return ArticleHaveEmojiModel.objects.create(
+            belong_article=belong_article,
+            belong_emoji=EmojiModel.objects.filter(code=validated_data['emoji_code']).first(),
+            create_user=now_requester,
+            updated_user=now_requester
+        )
 
 
 class GetListArticleHaveTagSerializer(serializers.ModelSerializer):
@@ -188,22 +200,19 @@ class GetListArticleHaveTagSerializer(serializers.ModelSerializer):
         fields = ('tag_list',)
 
     def get_tag_list(self, instance):
-        return_data = []
-        tag_list = ArticleHaveTagModel.objects.filter(belong_article=instance)
-        for tag_data in tag_list:
-            return_data.append(tag_data.belong_tag.name)
-        return return_data
+        return ArticleHaveTagModel.objects.filter(belong_article=instance).values_list('belong_tag__name', flat=True)
 
 
 class EditArticleHaveTagSerializer(serializers.ModelSerializer):
-    tag_list = serializers.ListField(write_only=True, child=ArticleEditHaveTagSerializer(), label='文章標籤列表')
+    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label='文章標籤列表')
 
     class Meta:
         model = ArticleHaveTagModel
-        fields = ('belong_article', 'tag_list')
+        fields = ('tag_list',)
 
     def create(self, validated_data):
-        now_requester = self.context['request'].user
+        now_requester = self.context.get('requester')
+        belong_article = self.context.get('belong_article')
         for tag_data in validated_data['tag_list']:
             filter_tag = TagModel.objects.filter(name=tag_data['name'])
             if filter_tag.exists():
@@ -214,13 +223,126 @@ class EditArticleHaveTagSerializer(serializers.ModelSerializer):
                     create_user=now_requester,
                     updated_user=now_requester
                 )
-            check_have_tag = ArticleHaveTagModel.objects.filter(belong_article=validated_data['belong_article'],
+            check_have_tag = ArticleHaveTagModel.objects.filter(belong_article=belong_article,
                                                                 belong_tag=filter_tag)
             if not check_have_tag.exists():
                 ArticleHaveTagModel.objects.create(
-                    belong_article=validated_data['belong_article'],
+                    belong_article=belong_article,
                     belong_tag=filter_tag,
                     create_user=now_requester,
                     updated_user=now_requester
                 )
+        return validated_data
+
+    def update(self, instance, validated_data):
+        now_requester = self.context['request'].user
+        original_tag_queryset = ArticleHaveTagModel.objects.filter(belong_article=instance)
+        original_tag_list = list(original_tag_queryset.values_list('belong_tag_id', flat=True))
+        for tag_data in validated_data['tag_list']:
+            filter_tag = TagModel.objects.filter(name=tag_data['name'])
+            if filter_tag.exists():
+                filter_tag = filter_tag.first()
+            else:
+                filter_tag = TagModel.objects.create(
+                    name=tag_data['name'],
+                    create_user=now_requester,
+                    updated_user=now_requester
+                )
+            check_have_tag = original_tag_queryset.filter(belong_tag=filter_tag.id)
+            if check_have_tag.exists():
+                try:
+                    original_tag_list.remove(filter_tag.id)
+                except ValueError:
+                    pass
+            else:
+                ArticleHaveTagModel.objects.create(
+                    belong_article=instance,
+                    belong_tag=filter_tag,
+                    create_user=now_requester,
+                    updated_user=now_requester
+                )
+        if len(original_tag_list) > 0:
+            original_tag_queryset.filter(belong_tag_id__in=original_tag_list).delete()
+        return validated_data
+
+
+class GetListArticleHaveMediaSerializer(serializers.ModelSerializer):
+    media_list = serializers.SerializerMethodField('get_media_list', label='媒體標籤列表')
+
+    class Meta:
+        model = ArticleHaveMediaModel
+        fields = ('media_list',)
+
+    def get_media_list(self, instance):
+        return ArticleHaveMediaModel.objects.filter(belong_article=instance).values('belong_media__code',
+                                                                                    'belong_media__name',
+                                                                                    'belong_media__image',
+                                                                                    'belong_media__image_name',
+                                                                                    'belong_media__image_source')
+
+
+class MediaListSerializer(serializers.ModelSerializer):
+    report_url = serializers.CharField(label='媒體報導網址')
+
+    class Meta:
+        model = MediaModel
+        fields = ('code', 'report_url')
+
+
+class EditArticleHaveMediaSerializer(serializers.ModelSerializer):
+    media_list = serializers.ListField(write_only=True, child=MediaListSerializer(), label='文章媒體列表')
+
+    class Meta:
+        model = ArticleHaveMediaModel
+        fields = ('media_list',)
+
+    def create(self, validated_data):
+        now_requester = self.context.get('requester')
+        belong_article = self.context.get('belong_article')
+        for media_data in validated_data['media_list']:
+            now_media_queryset = MediaModel.objects.filter(code=media_data['code'])
+            if now_media_queryset.exists():
+                now_media = now_media_queryset.first()
+                check_have_media = ArticleHaveMediaModel.objects.filter(belong_article=belong_article,
+                                                                        belong_media=now_media,
+                                                                        report_url=media_data['report_url'])
+                if not check_have_media.exists():
+                    ArticleHaveMediaModel.objects.create(
+                        belong_article=belong_article,
+                        belong_media=now_media,
+                        report_url=media_data['report_url'],
+                        create_user=now_requester,
+                        updated_user=now_requester
+                    )
+        return validated_data
+
+    def update(self, instance, validated_data):
+        now_requester = self.context['request'].user
+        original_media_queryset = ArticleHaveMediaModel.objects.filter(belong_article=instance)
+        original_tag_list = list(original_media_queryset.values('belong_media_id', 'report_url'))
+        for media_data in validated_data['media_list']:
+            now_media_queryset = MediaModel.objects.filter(code=media_data['code'])
+            if now_media_queryset.exists():
+                now_media = now_media_queryset.first()
+                check_have_media = original_media_queryset.filter(belong_media=now_media,
+                                                                  report_url=media_data['report_url'])
+                if check_have_media.exists():
+                    try:
+                        original_tag_list.remove(
+                            {'belong_media_id': now_media.id, 'report_url': media_data['report_url']})
+                    except ValueError:
+                        pass
+                else:
+                    ArticleHaveMediaModel.objects.create(
+                        belong_article=instance,
+                        belong_media=now_media,
+                        report_url=media_data['report_url'],
+                        create_user=now_requester,
+                        updated_user=now_requester
+                    )
+        if len(original_tag_list) > 0:
+            for original_media in original_tag_list:
+                original_media_queryset.filter(belong_media_id=original_media['belong_media_id'],
+                                               report_url=original_media['report_url']).delete()
+
         return validated_data

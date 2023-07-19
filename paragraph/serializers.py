@@ -4,7 +4,7 @@ from rest_framework import serializers
 from article.models import ArticleHaveImageModel
 from paragraph.models import ParagraphModel
 # serializers
-from article.serializers import GetArticleHaveImageSerializer
+from article.serializers import GetListArticleHaveImageSerializer
 
 
 class GetParagraphSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class GetParagraphSerializer(serializers.ModelSerializer):
     def get_paragraph_have_image(self, instance):
         now_image_list = ArticleHaveImageModel.objects.filter(belong_article=instance.belong_article,
                                                               order=instance.order)
-        return_data = GetArticleHaveImageSerializer(now_image_list, many=True).data
+        return_data = GetListArticleHaveImageSerializer(now_image_list, many=True).data
         return return_data
 
 

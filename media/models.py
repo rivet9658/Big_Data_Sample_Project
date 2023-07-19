@@ -15,6 +15,8 @@ class MediaModel(BaseModel):
     code = models.CharField(default='', max_length=50, verbose_name='媒體代號')
     name = models.CharField(default='', max_length=50, verbose_name='媒體名稱')
     image = models.ImageField(upload_to=media_image_path, verbose_name='媒體圖片')
+    image_name = models.CharField(default='', max_length=50, verbose_name='媒體圖片名稱(檔案名稱)')
+    image_source = models.URLField(default='', max_length=150, verbose_name='媒體圖片來源(檔案來源)')
 
     class Meta:
         db_table = "media"

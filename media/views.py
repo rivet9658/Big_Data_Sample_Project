@@ -72,13 +72,15 @@ class MediaView(viewsets.ModelViewSet):
         ]
     )
     def create(self, request, *args, **kwargs):
-        image_file = request.FILES.get('image')
         media_code = request.data.get('code')
         media_name = request.data.get('name')
+        image_file = request.FILES.get('image')
+        image_source = request.data.get('image_source')
         need_create_data = {
             'code': media_code,
             'name': media_name,
-            'image': image_file
+            'image': image_file,
+            'image_source': image_source
         }
         serializer = self.get_serializer(data=need_create_data)
         if serializer.is_valid():
@@ -96,16 +98,18 @@ class MediaView(viewsets.ModelViewSet):
     )
     def update(self, request, pk=None, *args, **kwargs):
         queryset = MediaModel.objects.filter(id=pk).first()
-        if not queryset:
+        if queryset is None:
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        image_file = request.FILES.get('image')
         media_code = request.data.get('code')
         media_name = request.data.get('name')
+        image_file = request.FILES.get('image')
+        image_source = request.data.get('image_source')
         need_update_data = {
             'code': media_code,
             'name': media_name,
-            'image': image_file
+            'image': image_file,
+            'image_source': image_source
         }
         serializer = self.get_serializer(queryset, data=need_update_data)
         if not serializer.is_valid():
@@ -133,7 +137,7 @@ class MediaView(viewsets.ModelViewSet):
     )
     def destroy(self, request, pk=None, *args, **kwargs):
         queryset = MediaModel.objects.filter(id=pk).first()
-        if not queryset:
+        if queryset is None:
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset.delete()

@@ -89,11 +89,11 @@ class CommentView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         now_requester = request.user
         belong_article_id = request.GET.get('belong_article')
-        if not belong_article_id:
+        if belong_article_id is None:
             return Response({'msg': '請指定所屬文章', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         belong_article = ArticleModel.objects.filter(id=belong_article_id).first()
-        if not belong_article:
+        if belong_article is None:
             return Response({'msg': '指定文章不存在', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article,
@@ -114,7 +114,7 @@ class CommentView(viewsets.ModelViewSet):
     )
     def update(self, request, pk=None, *args, **kwargs):
         queryset = CommentModel.objects.filter(id=pk).first()
-        if not queryset:
+        if queryset is None:
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(queryset, data=request.data, partial=True)
@@ -145,7 +145,7 @@ class CommentView(viewsets.ModelViewSet):
     )
     def destroy(self, request, pk=None, *args, **kwargs):
         queryset = CommentModel.objects.filter(id=pk).first()
-        if not queryset:
+        if queryset is None:
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset.delete()

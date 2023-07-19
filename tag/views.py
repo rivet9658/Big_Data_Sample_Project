@@ -85,7 +85,7 @@ class TagView(viewsets.ModelViewSet):
     )
     def update(self, request, pk=None, *args, **kwargs):
         queryset = TagModel.objects.filter(id=pk).first()
-        if not queryset:
+        if queryset is None:
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(queryset, data=request.data, partial=True)
@@ -116,7 +116,7 @@ class TagView(viewsets.ModelViewSet):
     )
     def destroy(self, request, pk=None, *args, **kwargs):
         queryset = TagModel.objects.filter(id=pk).first()
-        if not queryset:
+        if queryset is None:
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset.delete()
