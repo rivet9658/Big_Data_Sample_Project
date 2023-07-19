@@ -8,13 +8,14 @@ from rest_framework.permissions import IsAuthenticated
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 # models
-from article.models import ArticleModel, ArticleHaveEmojiModel, ArticleHaveMediaModel, ArticleHaveTagModel
+from article.models import ArticleModel, ArticleHaveEmojiModel, ArticleHaveMediaModel, ArticleHaveImageModel, \
+    ArticleHaveTagModel
 from emoji.models import EmojiModel
-from media.models import MediaModel
 # serializers
 from article.serializers import GetArticleSerializer, EditArticleSerializer, \
     StatisticsArticleHaveEmojiSerializer, AddArticleHaveEmojiSerializer, GetListArticleHaveTagSerializer, \
-    EditArticleHaveTagSerializer, GetListArticleHaveMediaSerializer, EditArticleHaveMediaSerializer
+    EditArticleHaveTagSerializer, GetListArticleHaveMediaSerializer, EditArticleHaveMediaSerializer, \
+    GetListArticleHaveImageSerializer, EditArticleHaveImageSerializer
 # permission
 from article.permission import ArticlePermission
 
@@ -43,6 +44,10 @@ class ArticleView(viewsets.ModelViewSet):
             return GetListArticleHaveMediaSerializer
         elif self.action in ['add_media', 'update_media', 'delete_media']:
             return EditArticleHaveMediaSerializer
+        elif self.action in ['get_image']:
+            return GetListArticleHaveImageSerializer
+        elif self.action in ['add_image', 'update_image', 'delete_image']:
+            return EditArticleHaveImageSerializer
         else:
             return GetArticleSerializer
 
@@ -350,7 +355,7 @@ class ArticleView(viewsets.ModelViewSet):
     )
     @action(methods=['POST'], detail=True, url_path='add_media')
     def add_media(self, request, pk=None, *args, **kwargs):
-        now_requester = self.request.user
+        now_requester = request.user
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
             return Response({'msg': '查無文章資料', 'data': []},
@@ -430,3 +435,75 @@ class ArticleView(viewsets.ModelViewSet):
 
         return Response({'msg': '文章刪除標籤成功', 'data': []},
                         status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-獲得含有圖片列表',
+        operation_description='獲得指定文章的含有圖片列表',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+            openapi.Parameter('order', openapi.IN_QUERY, description="第幾段落", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['GET'], detail=True, url_path='get_image')
+    def get_image(self, request, pk=None, *args, **kwargs):
+        article = ArticleModel.objects.filter(id=pk).first()
+        if article is None:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        queryset = ArticleHaveImageModel.objects.filter(belong_article=article)
+        order = request.GET.get('order')
+        if order is not None:
+            queryset = queryset.filter(order=order)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({'msg': '獲得文章含有圖片列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary='文章-新增含有圖片',
+        operation_description='新增指定文章的含有圖片(資料格式form-data)，若指定的order已經有圖片，將會取代',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['POST'], detail=True, url_path='add_image')
+    def add_image(self, request, pk=None, *args, **kwargs):
+        now_requester = request.user
+        article = ArticleModel.objects.filter(id=pk).first()
+        if article is None:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        order = request.data.get('order')
+        image = request.FILES.get('image')
+        source = request.data.get('source')
+        need_create_data = {
+            'order': order,
+            'image': image,
+            'source': source
+        }
+        serializer = self.get_serializer(data=need_create_data, context={'belong_article': article,
+                                                                         'requester': now_requester})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': '新增含有圖片成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'msg': '新增含有圖片失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+        operation_summary='文章-刪除含有圖片',
+        operation_description='刪除指定文章指定順序的含有圖片(資料格式form-data)',
+        manual_parameters=[
+            openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
+            openapi.Parameter('order', openapi.IN_QUERY, description="第幾段落", type=openapi.TYPE_STRING),
+        ],
+    )
+    @action(methods=['DELETE'], detail=True, url_path='delete_image')
+    def delete_image(self, request, pk=None, *args, **kwargs):
+        article = ArticleModel.objects.filter(id=pk).first()
+        if article is None:
+            return Response({'msg': '查無文章資料', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        order = request.GET.get('order')
+        if order is None:
+            return Response({'msg': '請指定第幾段落', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        ArticleHaveImageModel.objects.filter(belong_article=article, order=order).delete()
+        return Response({'msg': '刪除含有圖片成功', 'data': []}, status=status.HTTP_200_OK)
