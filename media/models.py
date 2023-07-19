@@ -6,9 +6,9 @@ from base_app.models import BaseModel
 
 # 圖片存放路徑
 def media_image_path(instance, filename):
-    belong_media = instance.id
+    belong_media_code = instance.code
 
-    return f"static/images/media/{str(belong_media)}/{filename}"
+    return f"static/images/media/{str(belong_media_code)}/{filename}"
 
 
 class MediaModel(BaseModel):

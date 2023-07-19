@@ -91,7 +91,7 @@ class EmojiView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         queryset = EmojiModel.objects.filter(id=pk).first()
         if not queryset:
-            return Response({'msg': '查無更新目標資料', 'data': 'not found data'},
+            return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(queryset, data=request.data, partial=True)
         if not serializer.is_valid():

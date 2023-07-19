@@ -33,6 +33,7 @@ from article.views import ArticleView
 from paragraph.views import ParagraphView
 from comment.views import CommentView
 from emoji.views import EmojiView
+from media.views import MediaView
 from tag.views import TagView
 
 
@@ -62,6 +63,7 @@ view_list = [
     {'url_name': 'paragraph', 'view': ParagraphView, 'basename': 'paragraph'},
     {'url_name': 'comment', 'view': CommentView, 'basename': 'comment'},
     {'url_name': 'emoji', 'view': EmojiView, 'basename': 'emoji'},
+    {'url_name': 'media', 'view': MediaView, 'basename': 'media'},
     {'url_name': 'tag', 'view': TagView, 'basename': 'tag'},
 ]
 
