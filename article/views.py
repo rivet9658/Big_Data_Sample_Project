@@ -18,6 +18,8 @@ from article.serializers import GetArticleSerializer, EditArticleSerializer, \
     GetListArticleHaveImageSerializer, EditArticleHaveImageSerializer
 # permission
 from article.permission import ArticlePermission
+# constant
+from big_data_sample_prj.constant import NOT_FOUND_ARTICLE, NEED_SELECT_TAG_LIST
 
 
 class ArticleView(viewsets.ModelViewSet):
@@ -184,7 +186,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_emoji(self, request, pk=None, *args, **kwargs):
         queryset = ArticleModel.objects.filter(id=pk).first()
         if queryset is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(queryset)
         return Response({'msg': '獲得文章表情統計列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -201,7 +203,7 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         emoji_code = request.data.get('emoji_code')
         if emoji_code is None:
@@ -237,7 +239,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_tag(self, request, pk=None, *args, **kwargs):
         queryset = ArticleModel.objects.filter(id=pk).first()
         if queryset is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(queryset)
         return Response({'msg': '獲得文章標籤列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -254,11 +256,11 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         tag_list = request.data.get('tag_list')
         if tag_list is None:
-            return Response({'msg': '請指定標籤列表', 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         need_create_data = {
             'tag_list': tag_list,
@@ -283,11 +285,11 @@ class ArticleView(viewsets.ModelViewSet):
     def update_tag(self, request, pk=None, *args, **kwargs):
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         tag_list = request.data.get('tag_list')
         if tag_list is None:
-            return Response({'msg': '請指定標籤列表', 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         need_update_data = {
             'tag_list': tag_list,
@@ -311,11 +313,11 @@ class ArticleView(viewsets.ModelViewSet):
     def delete_tag(self, request, pk=None, *args, **kwargs):
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         tag_list = request.data.get('tag_list')
         if tag_list is None:
-            return Response({'msg': '請指定標籤列表', 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         need_delete_data = {
             'tag_list': tag_list,
@@ -341,7 +343,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_media(self, request, pk=None, *args, **kwargs):
         queryset = ArticleModel.objects.filter(id=pk).first()
         if queryset is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(queryset)
         return Response({'msg': '獲得文章引用媒體列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -358,7 +360,7 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         media_list = request.data.get('media_list')
         if media_list is None:
@@ -387,7 +389,7 @@ class ArticleView(viewsets.ModelViewSet):
     def update_media(self, request, pk=None, *args, **kwargs):
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         media_list = request.data.get('media_list')
         if media_list is None:
@@ -415,11 +417,11 @@ class ArticleView(viewsets.ModelViewSet):
     def delete_media(self, request, pk=None, *args, **kwargs):
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         media_list = request.data.get('media_list')
         if media_list is None:
-            return Response({'msg': '請指定標籤列表', 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         need_delete_data = {
             'media_list': media_list,
@@ -448,7 +450,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_image(self, request, pk=None, *args, **kwargs):
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset = ArticleHaveImageModel.objects.filter(belong_article=article)
         order = request.GET.get('order')
@@ -469,7 +471,7 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article = ArticleModel.objects.filter(id=pk).first()
         if article is None:
-            return Response({'msg': '查無文章資料', 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         order = request.data.get('order')
         image = request.FILES.get('image')

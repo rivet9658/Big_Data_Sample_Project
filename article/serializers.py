@@ -9,6 +9,8 @@ from comment.models import CommentModel
 from emoji.models import EmojiModel
 from media.models import MediaModel
 from tag.models import TagModel
+# constant
+from big_data_sample_prj.constant import TAG_LIST
 
 
 # 標題圖片資料序列化格式
@@ -83,7 +85,7 @@ class TagListSerializer(serializers.ModelSerializer):
 class EditArticleSerializer(serializers.ModelSerializer):
     paragraph_list = serializers.ListField(write_only=True, child=ParagraphListSerializer(),
                                            label='文章段落列表')
-    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label='文章標籤列表')
+    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label=TAG_LIST)
 
     class Meta:
         model = ArticleModel
@@ -211,7 +213,7 @@ class AddArticleHaveEmojiSerializer(serializers.ModelSerializer):
 
 
 class GetListArticleHaveTagSerializer(serializers.ModelSerializer):
-    tag_list = serializers.SerializerMethodField('get_tag_list', label='文章標籤列表')
+    tag_list = serializers.SerializerMethodField('get_tag_list', label=TAG_LIST)
 
     class Meta:
         model = ArticleHaveTagModel
@@ -222,7 +224,7 @@ class GetListArticleHaveTagSerializer(serializers.ModelSerializer):
 
 
 class EditArticleHaveTagSerializer(serializers.ModelSerializer):
-    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label='文章標籤列表')
+    tag_list = serializers.ListField(write_only=True, child=TagListSerializer(), label=TAG_LIST)
 
     class Meta:
         model = ArticleHaveTagModel
