@@ -1,6 +1,8 @@
 FROM python:3.7.9
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SUPERUSER_USERNAME=superadmin
+ENV DJANGO_SUPERUSER_PASSWORD=1qaz@WSX3edc
 RUN mkdir /big_data_sample_project
 WORKDIR /big_data_sample_project
 RUN apt-get update && apt-get install -y vim
