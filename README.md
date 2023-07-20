@@ -1,7 +1,7 @@
 # 配置
-Python: 3.7.9
-Django 3.2.20
-MariaDB: 10.11.4
+1. Python: 3.7.9
+2. Django 3.2.20
+3. MariaDB: 10.11.4
 
 # 啟動步驟
 1. 請先至 .env 檔將 DOMAINS 等設定進行調整，如果要調整 DB 設定的話，也需一併調整 docker-compose.yml 裡 db 的 environment 的各項參數。
