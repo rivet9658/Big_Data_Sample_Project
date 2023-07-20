@@ -119,6 +119,12 @@ class ArticleView(viewsets.ModelViewSet):
         ]
     )
     def create(self, request, *args, **kwargs):
+        try:
+            print(request.data['paragraph_list'])
+            print(request.data['tag_list'])
+        except KeyError:
+            return Response({'msg': '請求參數有誤，請檢查參數'},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return Response({'msg': '文章新增失敗', 'data': serializer.errors},
@@ -140,6 +146,12 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
+        try:
+            print(request.data['paragraph_list'])
+            print(request.data['tag_list'])
+        except KeyError:
+            return Response({'msg': '請求參數有誤，請檢查參數'},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(article_data, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response({'msg': '文章更新失敗', 'data': serializer.errors},
@@ -384,8 +396,9 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '文章新增引用媒體失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章新增引用媒體成功', 'data': {'article': article_data.title, 'tag_list': media_list}},
-                        status=status.HTTP_200_OK)
+        return Response(
+            {'msg': '文章新增引用媒體成功', 'data': {'article': article_data.title, 'tag_list': media_list}},
+            status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_summary='文章-更新引用媒體',
@@ -413,8 +426,9 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '文章更新引用媒體列表失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章更新引用媒體列表成功', 'data': {'article': article_data.title, 'tag_list': media_list}},
-                        status=status.HTTP_200_OK)
+        return Response(
+            {'msg': '文章更新引用媒體列表成功', 'data': {'article': article_data.title, 'tag_list': media_list}},
+            status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_summary='文章-刪除引用媒體',
