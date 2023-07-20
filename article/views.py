@@ -453,14 +453,14 @@ class ArticleView(viewsets.ModelViewSet):
         }
         serializer = self.get_serializer(data=need_delete_data)
         if not serializer.is_valid():
-            return Response({'msg': '文章刪除標籤失敗', 'data': serializer.errors},
+            return Response({'msg': '文章刪除引用媒體失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         for media_data in serializer.validated_data['media_list']:
             ArticleHaveMediaModel.objects.filter(belong_article=article_data,
                                                  belong_media__code=media_data['code'],
                                                  report_url=media_data['report_url']).delete()
 
-        return Response({'msg': '文章刪除標籤成功', 'data': []},
+        return Response({'msg': '文章刪除引用媒體成功', 'data': []},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
