@@ -19,7 +19,7 @@ services:
 
   # MariaDB 資料庫
   db:
-    image: mariadb:latest
+    image: mariadb:10.11.4
     container_name: big_data_mariadb
     restart: always
     ports:
