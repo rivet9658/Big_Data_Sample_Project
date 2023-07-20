@@ -42,7 +42,7 @@ class ArticleHaveImageModel(BaseModel):
     order = models.IntegerField(default=0, verbose_name='所屬段落順序(0為標題圖片)')
     image = models.ImageField(upload_to=article_image_path, verbose_name='圖片檔案')
     name = models.CharField(default='', max_length=50, verbose_name='圖片名稱(檔案名稱)')
-    source = models.URLField(default='', max_length=150, verbose_name='圖片來源(檔案來源)')
+    source = models.TextField(default='', verbose_name='圖片來源(檔案來源)')
     belong_article = models.ForeignKey(ArticleModel, on_delete=models.CASCADE,
                                        related_name='article_have_image', verbose_name='所屬文章')
 
@@ -61,7 +61,7 @@ class ArticleHaveEmojiModel(BaseModel):
 
 
 class ArticleHaveMediaModel(BaseModel):
-    report_url = models.URLField(default='', max_length=150, verbose_name='媒體引用連結')
+    report_url = models.TextField(default='', verbose_name='媒體引用連結')
     belong_article = models.ForeignKey(ArticleModel, on_delete=models.CASCADE,
                                        related_name='article_have_media_article', verbose_name='所屬文章')
     belong_media = models.ForeignKey(MediaModel, on_delete=models.CASCADE,
