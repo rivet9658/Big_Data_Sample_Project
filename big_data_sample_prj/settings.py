@@ -155,6 +155,8 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT"),
         'OPTIONS': {
             'sql_mode': 'STRICT_TRANS_TABLES',  # 數據插入被截斷，會將警告升級為錯誤
+            'charset': 'utf8mb4',
+            'init_command': "SET collation_connection = 'utf8mb4_unicode_ci'",
         }
     }
 }

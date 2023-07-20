@@ -13,6 +13,8 @@ services:
       - .:/code
     environment:
       - DEBUG=True
+    networks:
+      - web_network
     dns: 8.8.8.8
 
   # MariaDB 資料庫
@@ -26,7 +28,19 @@ services:
       - ./mariadb:/var/lib/mysql
       - ./mariadb/log:/var/log
     environment:
-      - MYSQL_ROOT_PASSWORD: '1qaz@WS3edc'
-      - MYSQL_DATABASE: 'big_data_sample_prj'
-      - MYSQL_USER: 'admin'
-      - MYSQL_PASSWORD: '1qaz@WS3edc'
+      MYSQL_ROOT_PASSWORD: '1qaz@WS3edc'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: '1qaz@WS3edc'
+      MYSQL_DATABASE: 'big_data_sample_prj'
+    command:
+      [
+        'mysqld',
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci'
+      ]
+    networks:
+      - web_network
+
+networks:
+  web_network:
+    external: true
