@@ -28,16 +28,12 @@ services:
       - ./mariadb:/var/lib/mysql
       - ./mariadb/log:/var/log
     environment:
-      MYSQL_ROOT_PASSWORD: '1qaz@WS3edc'
-      MYSQL_USER: 'admin'
-      MYSQL_PASSWORD: '1qaz@WS3edc'
-      MYSQL_DATABASE: 'big_data_sample_prj'
-    command:
-      [
-        'mysqld',
-        '--character-set-server=utf8mb4',
-        '--collation-server=utf8mb4_unicode_ci'
-      ]
+      - MYSQL_ROOT_PASSWORD=1qaz@WS3edc
+      - MYSQL_DATABASE=big_data_sample_prj
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=1qaz@WS3edc
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
     networks:
       - web_network
 
