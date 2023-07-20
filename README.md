@@ -8,7 +8,7 @@
 2. 打開cmd指向專案路徑，輸入 docker build -t big_data_sample_project . 建立映像檔。
 3. 建立好映像檔後執行 docker save -o big_data_sample_project.tar big_data_sample_project 輸出映像檔的.tar檔。
 4. 將 2. 產出之 .tar 檔與 docker-compose.yml 加入 linux(這裡是用 ubuntu 23.04)機器上，並將 docker-compose.yml 放入 deploy.sh 檔第 3 行所指向的路徑與將 .tar 檔放入跟 deploy.sh 相同的路徑，設置好後請執行 sh deploy.sh 來啟動服務。
-5. 服務的網路為自訂義的網路 web_network，請記得建立網路，或調整 docker-compose 關於 network 的設定。
+5. 服務的網路為自訂義的網路 web_network，請確保該網路存在。
 6. 正常情況下會自動新建一個 superuser，帳號：superadmin，密碼請參考 .env 裡的 SUPERADMIN_PASSWORD，並自動連結資料庫，若發生預期外的狀況，請嘗試以下 6.、7.。
 7. 如果發現 django service 沒有連到 mariaDB，請幫我進入 big_data_sample_project 這個容器內(django service)，然後執行 mysql -h db -u root -p，密碼在 docker-compose 設定檔裡。
 8. 如果發現沒有成功建立預設的 superuser，一樣請幫我進入 big_data_sample_project 這個容器內(django service)，然後執行 python manage.py createsuperuser 來建立 superuser。
