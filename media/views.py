@@ -42,11 +42,11 @@ class MediaView(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         filter_code = request.GET.get('code')
         filter_name = request.GET.get('name')
-        if filter_code:
+        if len(filter_code) > 0:
             queryset = MediaModel.objects.filter(code__contains=filter_code)
         else:
             queryset = MediaModel.objects.all()
-        if filter_name:
+        if len(filter_name) > 0:
             queryset = queryset.filter(name__contains=filter_name)
         serializer = GetMediaSerializer(queryset, many=True)
         return Response({'msg': '獲得媒體列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -97,10 +97,11 @@ class MediaView(viewsets.ModelViewSet):
         ]
     )
     def update(self, request, pk=None, *args, **kwargs):
-        queryset = MediaModel.objects.filter(id=pk).first()
-        if queryset is None:
+        media_queryset = MediaModel.objects.filter(id=pk)
+        if not media_queryset.exists():
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
+        media_data = media_queryset.first()
         media_code = request.data.get('code')
         media_name = request.data.get('name')
         image_file = request.FILES.get('image')
@@ -111,7 +112,7 @@ class MediaView(viewsets.ModelViewSet):
             'image': image_file,
             'image_source': image_source
         }
-        serializer = self.get_serializer(queryset, data=need_update_data)
+        serializer = self.get_serializer(media_data, data=need_update_data)
         if not serializer.is_valid():
             return Response({'msg': '更新媒體失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -136,10 +137,11 @@ class MediaView(viewsets.ModelViewSet):
         ]
     )
     def destroy(self, request, pk=None, *args, **kwargs):
-        queryset = MediaModel.objects.filter(id=pk).first()
-        if queryset is None:
+        media_queryset = MediaModel.objects.filter(id=pk)
+        if not media_queryset.exists():
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        queryset.delete()
+        media_data = media_queryset.first()
+        media_data.delete()
         return Response({'msg': '媒體刪除成功', 'data': []},
                         status=status.HTTP_200_OK)

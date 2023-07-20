@@ -42,13 +42,13 @@ class EmojiView(viewsets.ModelViewSet):
         ]
     )
     def list(self, request, *args, **kwargs):
-        filter_code = request.GET.get('code')
-        filter_name = request.GET.get('name')
-        if filter_code:
+        filter_code = request.GET.get('code', '')
+        filter_name = request.GET.get('name', '')
+        if len(filter_code) > 0:
             queryset = EmojiModel.objects.filter(code__contains=filter_code)
         else:
             queryset = EmojiModel.objects.all()
-        if filter_name:
+        if len(filter_name) > 0:
             queryset = queryset.filter(name__contains=filter_name)
         serializer = GetEmojiSerializer(queryset, many=True)
         return Response({'msg': '獲得表情列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -89,11 +89,12 @@ class EmojiView(viewsets.ModelViewSet):
         ]
     )
     def update(self, request, pk=None, *args, **kwargs):
-        queryset = EmojiModel.objects.filter(id=pk).first()
-        if queryset is None:
+        emoji_queryset = EmojiModel.objects.filter(id=pk)
+        if not emoji_queryset.exists():
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(queryset, data=request.data, partial=True)
+        emoji_data = emoji_queryset.first()
+        serializer = self.get_serializer(emoji_data, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response({'msg': '表情更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -120,10 +121,11 @@ class EmojiView(viewsets.ModelViewSet):
         ]
     )
     def destroy(self, request, pk=None, *args, **kwargs):
-        queryset = EmojiModel.objects.filter(id=pk).first()
-        if queryset is None:
+        emoji_queryset = EmojiModel.objects.filter(id=pk)
+        if not emoji_queryset.exists():
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        queryset.delete()
+        emoji_data = emoji_queryset.first()
+        emoji_data.delete()
         return Response({'msg': '表情刪除成功', 'data': []},
                         status=status.HTTP_200_OK)

@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-++u$m=&)u7(@e)+7tc5%1qknhf$4zrr9kf%x@z9@1v*wfwtoq!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Rest framework 設定
 REST_FRAMEWORK = {

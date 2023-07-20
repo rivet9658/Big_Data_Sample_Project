@@ -35,19 +35,29 @@ class ParagraphView(viewsets.ModelViewSet):
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
             openapi.Parameter('belong_article', openapi.IN_QUERY, description="所屬文章(id)",
-                              type=openapi.TYPE_STRING),
+                              type=openapi.TYPE_NUMBER),
             openapi.Parameter('order', openapi.IN_QUERY, description="第幾段落",
                               type=openapi.TYPE_NUMBER),
         ]
     )
     def list(self, request, *args, **kwargs):
-        filter_belong_article = request.GET.get('belong_article')
-        filter_order = request.GET.get('order')
-        if filter_belong_article:
+        filter_belong_article = request.GET.get('belong_article', -1)
+        filter_order = request.GET.get('order', -1)
+        try:
+            filter_belong_article = int(filter_belong_article)
+        except ValueError:
+            return Response({'msg': '文章id格式錯誤', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if filter_belong_article > 0:
             queryset = ParagraphModel.objects.filter(belong_article_id=filter_belong_article)
         else:
             queryset = ParagraphModel.objects.all()
-        if filter_order:
+        try:
+            filter_order = int(filter_order)
+        except ValueError:
+            return Response({'msg': '段落順序格式錯誤', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if filter_order > 0:
             queryset = queryset.filter(order=filter_order)
         serializer = GetParagraphSerializer(queryset, many=True)
         return Response({'msg': '獲得段落列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -71,20 +81,26 @@ class ParagraphView(viewsets.ModelViewSet):
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
             openapi.Parameter('belong_article', openapi.IN_QUERY, description="所屬文章(id)",
-                              type=openapi.TYPE_STRING),
+                              type=openapi.TYPE_NUMBER),
         ]
     )
     def create(self, request, *args, **kwargs):
         now_requester = request.user
-        belong_article_id = request.GET.get('belong_article')
-        if belong_article_id is None:
-            return Response({'msg': '請指定所屬文章', 'data': []},
+        belong_article_id = request.GET.get('belong_article', -1)
+        try:
+            belong_article_id = int(belong_article_id)
+        except ValueError:
+            return Response({'msg': '文章id格式錯誤', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        belong_article = ArticleModel.objects.filter(id=belong_article_id).first()
-        if belong_article is None:
+        if belong_article_id <= 0:
+            return Response({'msg': '請輸入正確的所屬文章id', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        belong_article_queryset = ArticleModel.objects.filter(id=belong_article_id)
+        if not belong_article_queryset.exists():
             return Response({'msg': '指定文章不存在', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article,
+        belong_article_data = belong_article_queryset.first()
+        serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article_data,
                                                                      'requester': now_requester})
         if not serializer.is_valid():
             return Response({'msg': '段落新增失敗', 'data': serializer.errors},
@@ -101,11 +117,12 @@ class ParagraphView(viewsets.ModelViewSet):
         ]
     )
     def update(self, request, pk=None, *args, **kwargs):
-        queryset = ParagraphModel.objects.filter(id=pk).first()
-        if queryset is None:
+        paragraph_queryset = ParagraphModel.objects.filter(id=pk)
+        if not paragraph_queryset.exists():
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(queryset, data=request.data, partial=True)
+        paragraph_data = paragraph_queryset.first()
+        serializer = self.get_serializer(paragraph_data, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response({'msg': '段落更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -132,10 +149,11 @@ class ParagraphView(viewsets.ModelViewSet):
         ]
     )
     def destroy(self, request, pk=None, *args, **kwargs):
-        queryset = ParagraphModel.objects.filter(id=pk).first()
-        if queryset is None:
+        paragraph_queryset = ParagraphModel.objects.filter(id=pk)
+        if not paragraph_queryset.exists():
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        queryset.delete()
+        paragraph_data = paragraph_queryset.first()
+        paragraph_data.delete()
         return Response({'msg': '段落刪除成功', 'data': []},
                         status=status.HTTP_200_OK)

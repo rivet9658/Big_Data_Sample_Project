@@ -35,7 +35,7 @@ def article_image_path(instance, filename):
     belong_order = instance.order
     belong_article = instance.belong_article.id
 
-    return f"static/images/article/{str(belong_article)}/{belong_order}/{filename}"
+    return f"static/images/article/{str(belong_article)}/{str(belong_order)}/{str(filename)}"
 
 
 class ArticleHaveImageModel(BaseModel):

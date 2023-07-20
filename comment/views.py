@@ -36,7 +36,7 @@ class CommentView(viewsets.ModelViewSet):
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
             openapi.Parameter('belong_article', openapi.IN_QUERY, description="所屬文章(id)",
-                              type=openapi.TYPE_STRING),
+                              type=openapi.TYPE_NUMBER),
             openapi.Parameter('start_leave_date', openapi.IN_QUERY, description="留言日期區間-開始",
                               type=openapi.TYPE_STRING),
             openapi.Parameter('end_leave_date', openapi.IN_QUERY, description="留言日期區間-結束",
@@ -44,14 +44,19 @@ class CommentView(viewsets.ModelViewSet):
         ]
     )
     def list(self, request, *args, **kwargs):
-        filter_belong_article = request.GET.get('belong_article')
-        filter_start_date = request.GET.get('start_leave_date')
-        filter_end_date = request.GET.get('end_leave_date')
-        if filter_belong_article:
+        filter_belong_article = request.GET.get('belong_article', -1)
+        filter_start_date = request.GET.get('start_leave_date', '')
+        filter_end_date = request.GET.get('end_leave_date', '')
+        try:
+            filter_belong_article = int(filter_belong_article)
+        except ValueError:
+            return Response({'msg': '文章id格式錯誤', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if filter_belong_article > 0:
             queryset = CommentModel.objects.filter(belong_article_id=filter_belong_article)
         else:
             queryset = CommentModel.objects.all()
-        if filter_start_date and filter_end_date:
+        if len(filter_start_date) > 0 and len(filter_end_date) > 0:
             try:
                 filter_start_datetime = datetime.strptime(filter_start_date, '%Y-%m-%d')
                 filter_end_datetime = datetime.strptime(filter_end_date, '%Y-%m-%d')
@@ -83,20 +88,26 @@ class CommentView(viewsets.ModelViewSet):
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
             openapi.Parameter('belong_article', openapi.IN_QUERY, description="所屬文章(id)",
-                              type=openapi.TYPE_STRING),
+                              type=openapi.TYPE_NUMBER),
         ]
     )
     def create(self, request, *args, **kwargs):
         now_requester = request.user
         belong_article_id = request.GET.get('belong_article')
-        if belong_article_id is None:
-            return Response({'msg': '請指定所屬文章', 'data': []},
+        try:
+            belong_article_id = int(belong_article_id)
+        except ValueError:
+            return Response({'msg': '文章id格式錯誤', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        belong_article = ArticleModel.objects.filter(id=belong_article_id).first()
-        if belong_article is None:
+        if belong_article_id <= 0:
+            return Response({'msg': '請輸入正確的文章id格式', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        belong_article_queryset = ArticleModel.objects.filter(id=belong_article_id)
+        if not belong_article_queryset.exists():
             return Response({'msg': '指定文章不存在', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article,
+        belong_article_data = belong_article_queryset.first()
+        serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article_data,
                                                                      'requester': now_requester})
         if not serializer.is_valid():
             return Response({'msg': '評論新增失敗', 'data': serializer.errors},
@@ -113,11 +124,12 @@ class CommentView(viewsets.ModelViewSet):
         ]
     )
     def update(self, request, pk=None, *args, **kwargs):
-        queryset = CommentModel.objects.filter(id=pk).first()
-        if queryset is None:
+        comment_queryset = CommentModel.objects.filter(id=pk)
+        if not comment_queryset.exists():
             return Response({'msg': '查無更新目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.get_serializer(queryset, data=request.data, partial=True)
+        comment_data = comment_queryset.first()
+        serializer = self.get_serializer(comment_data, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response({'msg': '評論更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -144,10 +156,11 @@ class CommentView(viewsets.ModelViewSet):
         ]
     )
     def destroy(self, request, pk=None, *args, **kwargs):
-        queryset = CommentModel.objects.filter(id=pk).first()
-        if queryset is None:
+        comment_queryset = CommentModel.objects.filter(id=pk)
+        if not comment_queryset.exists():
             return Response({'msg': '查無刪除目標資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        queryset.delete()
+        comment_data = comment_queryset.first()
+        comment_data.delete()
         return Response({'msg': '評論刪除成功', 'data': []},
                         status=status.HTTP_200_OK)

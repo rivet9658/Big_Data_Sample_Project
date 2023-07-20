@@ -69,17 +69,16 @@ class ArticleView(viewsets.ModelViewSet):
         ]
     )
     def list(self, request, *args, **kwargs):
-        filter_is_publish = request.GET.get('is_publish')
-        filter_start_date = request.GET.get('start_publish_date')
-        filter_end_date = request.GET.get('end_publish_date')
-        filter_tags = request.GET.get('tags')
-
-        if filter_is_publish:
+        filter_is_publish = request.GET.get('is_publish', '')
+        filter_start_date = request.GET.get('start_publish_date', '')
+        filter_end_date = request.GET.get('end_publish_date', '')
+        filter_tags = request.GET.get('tags', '')
+        if len(filter_is_publish) > 0:
             filter_is_publish = filter_is_publish.lower() == 'true' or filter_is_publish == '1'
             queryset = ArticleModel.objects.filter(is_publish=filter_is_publish)
         else:
             queryset = ArticleModel.objects.all()
-        if filter_start_date and filter_end_date:
+        if len(filter_start_date) > 0 and len(filter_end_date) > 0:
             try:
                 filter_start_datetime = datetime.strptime(filter_start_date, '%Y-%m-%d')
                 filter_end_datetime = datetime.strptime(filter_end_date, '%Y-%m-%d')
@@ -89,7 +88,7 @@ class ArticleView(viewsets.ModelViewSet):
                 return Response(
                     {'msg': '發佈日期區間格式錯誤', 'data': []},
                     status=status.HTTP_400_BAD_REQUEST)
-        if filter_tags:
+        if len(filter_tags) > 0:
             now_article_have_tags = ArticleHaveTagModel.objects.filter(belong_article__in=queryset)
             now_tag_list = filter_tags.split(',')
             for tag in now_tag_list:
@@ -443,18 +442,23 @@ class ArticleView(viewsets.ModelViewSet):
         operation_description='獲得指定文章的含有圖片列表',
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
-            openapi.Parameter('order', openapi.IN_QUERY, description="第幾段落", type=openapi.TYPE_STRING),
+            openapi.Parameter('order', openapi.IN_QUERY, description="第幾段落", type=openapi.TYPE_NUMBER),
         ],
     )
     @action(methods=['GET'], detail=True, url_path='get_image')
     def get_image(self, request, pk=None, *args, **kwargs):
-        article = ArticleModel.objects.filter(id=pk).first()
-        if article is None:
+        article_queryset = ArticleModel.objects.filter(id=pk)
+        if not article_queryset.exists():
             return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        queryset = ArticleHaveImageModel.objects.filter(belong_article=article)
-        order = request.GET.get('order')
-        if order is not None:
+        queryset = ArticleHaveImageModel.objects.filter(belong_article=article_queryset.first())
+        order = request.GET.get('order', -1)
+        try:
+            order = int(order)
+        except ValueError:
+            return Response({'msg': '指定段落格式錯誤', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if order >= 0:
             queryset = queryset.filter(order=order)
         serializer = self.get_serializer(queryset, many=True)
         return Response({'msg': '獲得文章含有圖片列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -494,18 +498,24 @@ class ArticleView(viewsets.ModelViewSet):
         operation_description='刪除指定id的圖片資料',
         manual_parameters=[
             openapi.Parameter('Authorization', openapi.IN_HEADER, description="JWT Token", type=openapi.TYPE_STRING),
-            openapi.Parameter('image_id', openapi.IN_QUERY, description="圖片id", type=openapi.TYPE_STRING),
+            openapi.Parameter('image_id', openapi.IN_QUERY, description="圖片id", type=openapi.TYPE_NUMBER),
         ],
     )
     @action(methods=['DELETE'], detail=False, url_path='delete_image')
     def delete_image(self, request, *args, **kwargs):
-        image_id = request.GET.get('image_id')
-        if image_id is None:
-            return Response({'msg': '請指定圖片id', 'data': []},
+        image_id = request.GET.get('image_id', -1)
+        try:
+            image_id = int(image_id)
+        except ValueError:
+            return Response({'msg': '圖片id格式錯誤', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        now_delete = ArticleHaveImageModel.objects.filter(id=image_id)
-        if not now_delete.exists():
+        if image_id < 0:
+            return Response({'msg': '請指定正確的圖片id', 'data': []},
+                            status=status.HTTP_400_BAD_REQUEST)
+        now_delete_queryset = ArticleHaveImageModel.objects.filter(id=image_id)
+        if not now_delete_queryset.exists():
             return Response({'msg': '查無圖片資料', 'data': []},
                             status=status.HTTP_400_BAD_REQUEST)
-        now_delete.first().delete()
+        now_delete_data = now_delete_queryset.first()
+        now_delete_data.delete()
         return Response({'msg': '刪除含有圖片成功', 'data': []}, status=status.HTTP_200_OK)
