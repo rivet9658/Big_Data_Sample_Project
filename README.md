@@ -1,3 +1,8 @@
+# 配置
+Python: 3.7.9
+Django 3.2.20
+MariaDB: 10.11.4
+
 # 啟動步驟
 1. 請先至 .env 檔將 DOMAINS 等設定進行調整，如果要調整 DB 設定的話，也需一併調整 docker-compose.yml 裡 db 的 environment 的各項參數。
 2. 打開cmd指向專案路徑，輸入 docker build -t big_data_sample_project . 建立映像檔。
