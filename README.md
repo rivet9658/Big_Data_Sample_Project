@@ -13,7 +13,7 @@
 7. 如果發現沒有成功建立預設的 superuser，一樣請幫我進入 big_data_sample_project 這個容器內(django service)，然後執行 python manage.py createsuperuser 來建立 superuser。
 
 # 功能簡介
-1. 包含文章、段落、標籤等資料新建，並且也能依據指定文章進行圖片上傳、評論增加等功能。
+1. 包含文章、段落、標籤等資料新建，並且也能依據指定文章進行圖片上傳、評論增加等功能，參考自 https://dailyview.tw/history 的熱門文章部份。
 2. 以 jwt token 來驗證，請打 http://服務運行的ip:8000/api/token/ ，來獲取 jwt token，之後各 api 請在 header 帶入 "Bearer 你的token" 這樣的格式來請求 api。
 3. 如果要 refresh token 請打 http://服務運行的ip:8000/api/token/refresh/ 並帶入你的 refresh token 來重新獲得 access toekn。
 4. 詳細的 API 說明請參考 swagger 文檔，路徑為 http://服務運行的ip:8000/swagger/sample_prj/。
