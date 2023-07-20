@@ -13,6 +13,6 @@
 
 # 功能簡介
 1. 包含文章、段落、標籤等資料新建，並且也能依據指定文章進行圖片上傳、評論增加等功能。
-2. 以 jwt token 來驗證，請打 http://服務運行的ip:8000/api/token/， 來獲取 jwt token，之後各 api 請帶入 "Bearer 你的token" 這樣的格式來請求 api。
+2. 以 jwt token 來驗證，請打 http://服務運行的ip:8000/api/token/ ，來獲取 jwt token，之後各 api 請帶入 "Bearer 你的token" 這樣的格式來請求 api。
 3. 如果要 refresh token 請打 http://服務運行的ip:8000/api/token/refresh/ 並帶入你的 refresh token 來重新獲得 access toekn。
 4. 詳細的 API 說明請參考 swagger 文檔，路徑為 http://服務運行的ip:8000/swagger/sample_prj/。
