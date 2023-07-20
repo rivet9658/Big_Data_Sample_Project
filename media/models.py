@@ -8,7 +8,7 @@ from base_app.models import BaseModel
 def media_image_path(instance, filename):
     belong_media_code = instance.code
 
-    return f"static/images/media/{str(belong_media_code)}/{filename}"
+    return f"static/images/media/{str(belong_media_code)}/{str(filename)}"
 
 
 class MediaModel(BaseModel):
