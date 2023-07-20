@@ -93,7 +93,7 @@ class CommentView(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         now_requester = request.user
-        belong_article_id = request.GET.get('belong_article')
+        belong_article_id = request.GET.get('belong_article', -1)
         try:
             belong_article_id = int(belong_article_id)
         except ValueError:
