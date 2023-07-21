@@ -35,15 +35,3 @@ class BaseModel(models.Model):
         if not self.updated_user_id:
             self.updated_user = get_anonymous_user()
         super().save(*args, **kwargs)
-
-    # def save(
-    #         self, force_insert=False, force_update=False, using=None, update_fields=None
-    # ):
-    #     try:
-    #         super(BaseModel, self).save(force_insert, force_update, using, update_fields)
-    #     except IntegrityError:  # saveException
-    #         try:
-    #             transaction.rollback()
-    #         except (IntegrityError, DatabaseError):  # rollbackException
-    #             return Response('回滾異常')
-    #         return Response('儲存異常')
