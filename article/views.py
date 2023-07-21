@@ -86,7 +86,7 @@ class ArticleView(viewsets.ModelViewSet):
                 queryset = queryset.filter(publish_datetime__range=(filter_start_datetime, filter_end_datetime))
             except ValueError:
                 return Response(
-                    {'msg': '發佈日期區間格式錯誤', 'data': []},
+                    {'msg': '發佈日期區間格式錯誤', 'data': {}},
                     status=status.HTTP_400_BAD_REQUEST)
         if len(filter_tags) > 0:
             now_article_have_tags = ArticleHaveTagModel.objects.filter(belong_article__in=queryset)
@@ -124,7 +124,7 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '文章新增失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章新增成功', 'data': serializer.data},
+        return Response({'msg': '文章新增成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -137,7 +137,7 @@ class ArticleView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': '查無更新目標資料', 'data': []},
+            return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         serializer = self.get_serializer(article_data, data=request.data, partial=True)
@@ -145,7 +145,7 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '文章更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章更新成功', 'data': serializer.data},
+        return Response({'msg': '文章更新成功', 'data': request.data},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -156,7 +156,7 @@ class ArticleView(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return Response({'msg': '不支援此操作', 'data': []},
+        return Response({'msg': '不支援此操作', 'data': {}},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
@@ -169,11 +169,11 @@ class ArticleView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': '查無刪除目標資料', 'data': []},
+            return Response({'msg': '查無刪除目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         article_data.delete()
-        return Response({'msg': '文章刪除成功', 'data': []},
+        return Response({'msg': '文章刪除成功', 'data': {'id': pk}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -187,7 +187,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_emoji(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         serializer = self.get_serializer(article_data)
@@ -205,19 +205,19 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         emoji_code = request.data.get('emoji_code')
         if emoji_code is None:
-            return Response({'msg': '請指定要給予的表情', 'data': []},
+            return Response({'msg': '請指定要給予的表情', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         emoji_queryset = EmojiModel.objects.filter(code=emoji_code)
         if not emoji_queryset.exists():
-            return Response({'msg': '查無目標表情', 'data': []},
+            return Response({'msg': '查無目標表情', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if ArticleHaveEmojiModel.objects.filter(belong_article=article_data, create_user=request.user).exists():
-            return Response({'msg': '你已經評論過該文章了', 'data': []},
+            return Response({'msg': '你已經評論過該文章了', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_create_data = {
             'emoji_code': emoji_code,
@@ -242,7 +242,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_tag(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         serializer = self.get_serializer(article_data)
@@ -260,12 +260,12 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         tag_list = request.data.get('tag_list')
         if tag_list is None:
-            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_create_data = {
             'tag_list': tag_list,
@@ -290,12 +290,12 @@ class ArticleView(viewsets.ModelViewSet):
     def update_tag(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         tag_list = request.data.get('tag_list')
         if tag_list is None:
-            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_update_data = {
             'tag_list': tag_list,
@@ -319,12 +319,12 @@ class ArticleView(viewsets.ModelViewSet):
     def delete_tag(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         tag_list = request.data.get('tag_list')
         if tag_list is None:
-            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_delete_data = {
             'tag_list': tag_list,
@@ -336,7 +336,7 @@ class ArticleView(viewsets.ModelViewSet):
         for tag_data in serializer.validated_data['tag_list']:
             ArticleHaveTagModel.objects.filter(belong_article=article_data, belong_tag__name=tag_data['name']).delete()
 
-        return Response({'msg': '文章刪除標籤成功', 'data': []},
+        return Response({'msg': '文章刪除標籤成功', 'data': {'article': article_data.title, 'tag_list': tag_list}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -350,7 +350,7 @@ class ArticleView(viewsets.ModelViewSet):
     def get_media(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         serializer = self.get_serializer(article_data)
@@ -368,12 +368,12 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         media_list = request.data.get('media_list')
         if media_list is None:
-            return Response({'msg': '請指定引用媒體列表', 'data': []},
+            return Response({'msg': '請指定引用媒體列表', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_create_data = {
             'media_list': media_list,
@@ -384,7 +384,7 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '文章新增引用媒體失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章新增引用媒體成功', 'data': {'article': article_data.title, 'tag_list': media_list}},
+        return Response({'msg': '文章新增引用媒體成功', 'data': {'article': article_data.title, 'media_list': media_list}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -398,12 +398,12 @@ class ArticleView(viewsets.ModelViewSet):
     def update_media(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         media_list = request.data.get('media_list')
         if media_list is None:
-            return Response({'msg': '請指定引用媒體列表', 'data': []},
+            return Response({'msg': '請指定引用媒體列表', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_create_data = {
             'media_list': media_list,
@@ -413,7 +413,7 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '文章更新引用媒體列表失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '文章更新引用媒體列表成功', 'data': {'article': article_data.title, 'tag_list': media_list}},
+        return Response({'msg': '文章更新引用媒體列表成功', 'data': {'article': article_data.title, 'media_list': media_list}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -446,7 +446,7 @@ class ArticleView(viewsets.ModelViewSet):
                                                  belong_media__code=media_data['code'],
                                                  report_url=media_data['report_url']).delete()
 
-        return Response({'msg': '文章刪除標籤成功', 'data': []},
+        return Response({'msg': '文章刪除標籤成功', 'data': {'article': article_data.title, 'media_list': media_list}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -461,14 +461,14 @@ class ArticleView(viewsets.ModelViewSet):
     def get_image(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         queryset = ArticleHaveImageModel.objects.filter(belong_article=article_queryset.first())
         order = request.GET.get('order', -1)
         try:
             order = int(order)
         except ValueError:
-            return Response({'msg': '指定段落格式錯誤', 'data': []},
+            return Response({'msg': '指定段落格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if order >= 0:
             queryset = queryset.filter(order=order)
@@ -487,7 +487,7 @@ class ArticleView(viewsets.ModelViewSet):
         now_requester = request.user
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         order = request.data.get('order')
@@ -500,11 +500,10 @@ class ArticleView(viewsets.ModelViewSet):
         }
         serializer = self.get_serializer(data=need_create_data, context={'belong_article': article_data,
                                                                          'requester': now_requester})
-        if serializer.is_valid():
+        if not serializer.is_valid():
             serializer.save()
-            return Response({'msg': '新增含有圖片成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-        else:
             return Response({'msg': '新增含有圖片失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'msg': '新增含有圖片成功', 'data': request.data}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         operation_summary='文章-刪除含有圖片',
@@ -520,15 +519,15 @@ class ArticleView(viewsets.ModelViewSet):
         try:
             image_id = int(image_id)
         except ValueError:
-            return Response({'msg': '圖片id格式錯誤', 'data': []},
+            return Response({'msg': '圖片id格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if image_id < 0:
-            return Response({'msg': '請指定正確的圖片id', 'data': []},
+            return Response({'msg': '請指定正確的圖片id', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         now_delete_queryset = ArticleHaveImageModel.objects.filter(id=image_id)
         if not now_delete_queryset.exists():
-            return Response({'msg': '查無圖片資料', 'data': []},
+            return Response({'msg': '查無圖片資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         now_delete_data = now_delete_queryset.first()
         now_delete_data.delete()
-        return Response({'msg': '刪除含有圖片成功', 'data': []}, status=status.HTTP_200_OK)
+        return Response({'msg': '刪除含有圖片成功', 'data': {'id': image_id}}, status=status.HTTP_200_OK)

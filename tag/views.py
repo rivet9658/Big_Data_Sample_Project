@@ -74,7 +74,7 @@ class TagView(viewsets.ModelViewSet):
             return Response({'msg': '標籤新增失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '標籤新增成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'msg': '標籤新增成功', 'data': request.data}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         operation_summary='標籤-更新標籤',
@@ -86,7 +86,7 @@ class TagView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         tag_queryset = TagModel.objects.filter(id=pk)
         if not tag_queryset.exists():
-            return Response({'msg': '查無更新目標資料', 'data': []},
+            return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         tag_data = tag_queryset.first()
         serializer = self.get_serializer(tag_data, data=request.data, partial=True)
@@ -94,7 +94,7 @@ class TagView(viewsets.ModelViewSet):
             return Response({'msg': '標籤更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '標籤更新成功', 'data': serializer.data},
+        return Response({'msg': '標籤更新成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -105,7 +105,7 @@ class TagView(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return Response({'msg': '不支援此操作', 'data': []},
+        return Response({'msg': '不支援此操作', 'data': {}},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
@@ -118,9 +118,9 @@ class TagView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, *args, **kwargs):
         tag_queryset = TagModel.objects.filter(id=pk)
         if not tag_queryset.exists():
-            return Response({'msg': '查無刪除目標資料', 'data': []},
+            return Response({'msg': '查無刪除目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         tag_data = tag_queryset.first()
         tag_data.delete()
-        return Response({'msg': '標籤刪除成功', 'data': []},
+        return Response({'msg': '標籤刪除成功', 'data': {'id': pk}},
                         status=status.HTTP_200_OK)

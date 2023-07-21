@@ -87,7 +87,7 @@ class MediaView(viewsets.ModelViewSet):
             serializer.save()
             return Response({'msg': '新增媒體成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'msg': '新增媒體失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg': '新增媒體失敗', 'data': request.data}, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
         operation_summary='媒體-更新媒體',
@@ -99,7 +99,7 @@ class MediaView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         media_queryset = MediaModel.objects.filter(id=pk)
         if not media_queryset.exists():
-            return Response({'msg': '查無更新目標資料', 'data': []},
+            return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         media_data = media_queryset.first()
         media_code = request.data.get('code')
@@ -116,7 +116,7 @@ class MediaView(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response({'msg': '更新媒體失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '更新媒體成功', 'data': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'msg': '更新媒體成功', 'data': request.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_summary='不支援此操作',
@@ -126,7 +126,7 @@ class MediaView(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return Response({'msg': '不支援此操作', 'data': []},
+        return Response({'msg': '不支援此操作', 'data': {}},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
@@ -139,9 +139,9 @@ class MediaView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, *args, **kwargs):
         media_queryset = MediaModel.objects.filter(id=pk)
         if not media_queryset.exists():
-            return Response({'msg': '查無刪除目標資料', 'data': []},
+            return Response({'msg': '查無刪除目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         media_data = media_queryset.first()
         media_data.delete()
-        return Response({'msg': '媒體刪除成功', 'data': []},
+        return Response({'msg': '媒體刪除成功', 'data': {'id': pk}},
                         status=status.HTTP_200_OK)

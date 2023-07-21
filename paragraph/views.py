@@ -46,7 +46,7 @@ class ParagraphView(viewsets.ModelViewSet):
         try:
             filter_belong_article = int(filter_belong_article)
         except ValueError:
-            return Response({'msg': '文章id格式錯誤', 'data': []},
+            return Response({'msg': '文章id格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if filter_belong_article > 0:
             queryset = ParagraphModel.objects.filter(belong_article_id=filter_belong_article)
@@ -55,7 +55,7 @@ class ParagraphView(viewsets.ModelViewSet):
         try:
             filter_order = int(filter_order)
         except ValueError:
-            return Response({'msg': '段落順序格式錯誤', 'data': []},
+            return Response({'msg': '段落順序格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if filter_order > 0:
             queryset = queryset.filter(order=filter_order)
@@ -90,14 +90,14 @@ class ParagraphView(viewsets.ModelViewSet):
         try:
             belong_article_id = int(belong_article_id)
         except ValueError:
-            return Response({'msg': '文章id格式錯誤', 'data': []},
+            return Response({'msg': '文章id格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if belong_article_id <= 0:
-            return Response({'msg': '請輸入正確的所屬文章id', 'data': []},
+            return Response({'msg': '請輸入正確的所屬文章id', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         belong_article_queryset = ArticleModel.objects.filter(id=belong_article_id)
         if not belong_article_queryset.exists():
-            return Response({'msg': '指定文章不存在', 'data': []},
+            return Response({'msg': '指定文章不存在', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         belong_article_data = belong_article_queryset.first()
         serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article_data,
@@ -106,7 +106,7 @@ class ParagraphView(viewsets.ModelViewSet):
             return Response({'msg': '段落新增失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '段落新增成功', 'data': serializer.data},
+        return Response({'msg': '段落新增成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -119,7 +119,7 @@ class ParagraphView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         paragraph_queryset = ParagraphModel.objects.filter(id=pk)
         if not paragraph_queryset.exists():
-            return Response({'msg': '查無更新目標資料', 'data': []},
+            return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         paragraph_data = paragraph_queryset.first()
         serializer = self.get_serializer(paragraph_data, data=request.data, partial=True)
@@ -127,7 +127,7 @@ class ParagraphView(viewsets.ModelViewSet):
             return Response({'msg': '段落更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '段落更新成功', 'data': serializer.data},
+        return Response({'msg': '段落更新成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -138,7 +138,7 @@ class ParagraphView(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return Response({'msg': '不支援此操作', 'data': []},
+        return Response({'msg': '不支援此操作', 'data': {}},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
@@ -151,9 +151,9 @@ class ParagraphView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, *args, **kwargs):
         paragraph_queryset = ParagraphModel.objects.filter(id=pk)
         if not paragraph_queryset.exists():
-            return Response({'msg': '查無刪除目標資料', 'data': []},
+            return Response({'msg': '查無刪除目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         paragraph_data = paragraph_queryset.first()
         paragraph_data.delete()
-        return Response({'msg': '段落刪除成功', 'data': []},
+        return Response({'msg': '段落刪除成功', 'data': {'id': pk}},
                         status=status.HTTP_200_OK)

@@ -50,7 +50,7 @@ class CommentView(viewsets.ModelViewSet):
         try:
             filter_belong_article = int(filter_belong_article)
         except ValueError:
-            return Response({'msg': '文章id格式錯誤', 'data': []},
+            return Response({'msg': '文章id格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if filter_belong_article > 0:
             queryset = CommentModel.objects.filter(belong_article_id=filter_belong_article)
@@ -64,7 +64,7 @@ class CommentView(viewsets.ModelViewSet):
                 queryset = queryset.filter(leave_datetime__range=(filter_start_datetime, filter_end_datetime))
             except ValueError:
                 return Response(
-                    {'msg': '留言日期區間格式錯誤', 'data': []},
+                    {'msg': '留言日期區間格式錯誤', 'data': {}},
                     status=status.HTTP_400_BAD_REQUEST)
         serializer = GetCommentSerializer(queryset, many=True)
         return Response({'msg': '獲得評論列表成功', 'data': serializer.data}, status=status.HTTP_200_OK)
@@ -97,14 +97,14 @@ class CommentView(viewsets.ModelViewSet):
         try:
             belong_article_id = int(belong_article_id)
         except ValueError:
-            return Response({'msg': '文章id格式錯誤', 'data': []},
+            return Response({'msg': '文章id格式錯誤', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         if belong_article_id <= 0:
-            return Response({'msg': '請輸入正確的文章id格式', 'data': []},
+            return Response({'msg': '請輸入正確的文章id格式', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         belong_article_queryset = ArticleModel.objects.filter(id=belong_article_id)
         if not belong_article_queryset.exists():
-            return Response({'msg': '指定文章不存在', 'data': []},
+            return Response({'msg': '指定文章不存在', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         belong_article_data = belong_article_queryset.first()
         serializer = self.get_serializer(data=request.data, context={'belong_article': belong_article_data,
@@ -113,7 +113,7 @@ class CommentView(viewsets.ModelViewSet):
             return Response({'msg': '評論新增失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '評論新增成功', 'data': serializer.data},
+        return Response({'msg': '評論新增成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -126,7 +126,7 @@ class CommentView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         comment_queryset = CommentModel.objects.filter(id=pk)
         if not comment_queryset.exists():
-            return Response({'msg': '查無更新目標資料', 'data': []},
+            return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         comment_data = comment_queryset.first()
         serializer = self.get_serializer(comment_data, data=request.data, partial=True)
@@ -134,7 +134,7 @@ class CommentView(viewsets.ModelViewSet):
             return Response({'msg': '評論更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '評論更新成功', 'data': serializer.data},
+        return Response({'msg': '評論更新成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -145,7 +145,7 @@ class CommentView(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return Response({'msg': '不支援此操作', 'data': []},
+        return Response({'msg': '不支援此操作', 'data': {}},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
@@ -158,9 +158,9 @@ class CommentView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, *args, **kwargs):
         comment_queryset = CommentModel.objects.filter(id=pk)
         if not comment_queryset.exists():
-            return Response({'msg': '查無刪除目標資料', 'data': []},
+            return Response({'msg': '查無刪除目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         comment_data = comment_queryset.first()
         comment_data.delete()
-        return Response({'msg': '評論刪除成功', 'data': []},
+        return Response({'msg': '評論刪除成功', 'data': {'id': pk}},
                         status=status.HTTP_200_OK)

@@ -79,7 +79,7 @@ class EmojiView(viewsets.ModelViewSet):
             return Response({'msg': '標籤新增失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '標籤新增成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'msg': '標籤新增成功', 'data': request.data}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         operation_summary='表情-更新表情',
@@ -91,7 +91,7 @@ class EmojiView(viewsets.ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         emoji_queryset = EmojiModel.objects.filter(id=pk)
         if not emoji_queryset.exists():
-            return Response({'msg': '查無更新目標資料', 'data': []},
+            return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         emoji_data = emoji_queryset.first()
         serializer = self.get_serializer(emoji_data, data=request.data, partial=True)
@@ -99,7 +99,7 @@ class EmojiView(viewsets.ModelViewSet):
             return Response({'msg': '表情更新失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '表情更新成功', 'data': serializer.data},
+        return Response({'msg': '表情更新成功', 'data': request.data},
                         status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -110,7 +110,7 @@ class EmojiView(viewsets.ModelViewSet):
         ]
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return Response({'msg': '不支援此操作', 'data': []},
+        return Response({'msg': '不支援此操作', 'data': {}},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @swagger_auto_schema(
@@ -123,9 +123,9 @@ class EmojiView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None, *args, **kwargs):
         emoji_queryset = EmojiModel.objects.filter(id=pk)
         if not emoji_queryset.exists():
-            return Response({'msg': '查無刪除目標資料', 'data': []},
+            return Response({'msg': '查無刪除目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         emoji_data = emoji_queryset.first()
         emoji_data.delete()
-        return Response({'msg': '表情刪除成功', 'data': []},
+        return Response({'msg': '表情刪除成功', 'data': {'id': pk}},
                         status=status.HTTP_200_OK)
