@@ -87,7 +87,7 @@ class MediaView(viewsets.ModelViewSet):
             serializer.save()
             return Response({'msg': '新增媒體成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'msg': '新增媒體失敗', 'data': request.data}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg': '新增媒體失敗', 'data': serializer.data}, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
         operation_summary='媒體-更新媒體',
@@ -116,7 +116,7 @@ class MediaView(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response({'msg': '更新媒體失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '更新媒體成功', 'data': request.data}, status=status.HTTP_200_OK)
+        return Response({'msg': '更新媒體成功', 'data': serializer.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_summary='不支援此操作',
