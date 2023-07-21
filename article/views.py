@@ -513,8 +513,8 @@ class ArticleView(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=need_create_data, context={'belong_article': article_data,
                                                                          'requester': now_requester})
         if not serializer.is_valid():
-            serializer.save()
             return Response({'msg': '新增含有圖片失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
         return Response({'msg': '新增含有圖片成功', 'data': request.data}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
