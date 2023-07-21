@@ -439,12 +439,12 @@ class ArticleView(viewsets.ModelViewSet):
     def delete_media(self, request, pk=None, *args, **kwargs):
         article_queryset = ArticleModel.objects.filter(id=pk)
         if not article_queryset.exists():
-            return Response({'msg': NOT_FOUND_ARTICLE, 'data': []},
+            return Response({'msg': NOT_FOUND_ARTICLE, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
         media_list = request.data.get('media_list')
         if media_list is None:
-            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': []},
+            return Response({'msg': NEED_SELECT_TAG_LIST, 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         need_delete_data = {
             'media_list': media_list,
@@ -458,7 +458,7 @@ class ArticleView(viewsets.ModelViewSet):
                                                  belong_media__code=media_data['code'],
                                                  report_url=media_data['report_url']).delete()
 
-        return Response({'msg': '文章刪除引用媒體成功', 'data': {}},
+        return Response({'msg': '文章刪除引用媒體成功', 'data': {'article': article_data.title, 'media_list': media_list}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
