@@ -515,7 +515,7 @@ class ArticleView(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response({'msg': '新增含有圖片失敗', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        return Response({'msg': '新增含有圖片成功', 'data': request.data}, status=status.HTTP_201_CREATED)
+        return Response({'msg': '新增含有圖片成功', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         operation_summary='文章-刪除含有圖片',
