@@ -298,7 +298,8 @@ class GetListArticleHaveMediaSerializer(serializers.ModelSerializer):
                                                                                     'belong_media__name',
                                                                                     'belong_media__image',
                                                                                     'belong_media__image_name',
-                                                                                    'belong_media__image_source')
+                                                                                    'belong_media__image_source',
+                                                                                    'report_url')
 
 
 class MediaListSerializer(serializers.ModelSerializer):

@@ -40,7 +40,7 @@ class TagView(viewsets.ModelViewSet):
         ]
     )
     def list(self, request, *args, **kwargs):
-        filter_name = request.GET.get('name')
+        filter_name = request.GET.get('name', '')
         if len(filter_name) > 0:
             queryset = TagModel.objects.filter(name__contains=filter_name)
         else:

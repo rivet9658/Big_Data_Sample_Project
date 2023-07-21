@@ -40,8 +40,8 @@ class MediaView(viewsets.ModelViewSet):
         ]
     )
     def list(self, request, *args, **kwargs):
-        filter_code = request.GET.get('code')
-        filter_name = request.GET.get('name')
+        filter_code = request.GET.get('code', '')
+        filter_name = request.GET.get('name', '')
         if len(filter_code) > 0:
             queryset = MediaModel.objects.filter(code__contains=filter_code)
         else:

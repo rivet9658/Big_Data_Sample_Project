@@ -119,6 +119,12 @@ class ArticleView(viewsets.ModelViewSet):
         ]
     )
     def create(self, request, *args, **kwargs):
+        try:
+            print(request.data['paragraph_list'])
+            print(request.data['tag_list'])
+        except KeyError:
+            return Response({'msg': '請求參數有誤，請檢查參數'},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return Response({'msg': '文章新增失敗', 'data': serializer.errors},
@@ -140,6 +146,12 @@ class ArticleView(viewsets.ModelViewSet):
             return Response({'msg': '查無更新目標資料', 'data': {}},
                             status=status.HTTP_400_BAD_REQUEST)
         article_data = article_queryset.first()
+        try:
+            print(request.data['paragraph_list'])
+            print(request.data['tag_list'])
+        except KeyError:
+            return Response({'msg': '請求參數有誤，請檢查參數'},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(article_data, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response({'msg': '文章更新失敗', 'data': serializer.errors},
@@ -439,14 +451,14 @@ class ArticleView(viewsets.ModelViewSet):
         }
         serializer = self.get_serializer(data=need_delete_data)
         if not serializer.is_valid():
-            return Response({'msg': '文章刪除標籤失敗', 'data': serializer.errors},
+            return Response({'msg': '文章刪除引用媒體失敗', 'data': serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
         for media_data in serializer.validated_data['media_list']:
             ArticleHaveMediaModel.objects.filter(belong_article=article_data,
                                                  belong_media__code=media_data['code'],
                                                  report_url=media_data['report_url']).delete()
 
-        return Response({'msg': '文章刪除標籤成功', 'data': {'article': article_data.title, 'media_list': media_list}},
+        return Response({'msg': '文章刪除引用媒體成功', 'data': {}},
                         status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
