@@ -13,4 +13,5 @@ COPY entrypoint.sh /big_data_sample_project/entrypoint.sh
 RUN dos2unix /big_data_sample_project/entrypoint.sh
 RUN chmod +x /big_data_sample_project/entrypoint.sh
 SHELL ["/bin/bash", "-c"]
+ENTRYPOINT ["/big_data_sample_project/entrypoint.sh"]
 EXPOSE 8000

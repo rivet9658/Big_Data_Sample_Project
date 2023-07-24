@@ -11,11 +11,11 @@ services:
     restart: always
     ports:
       - "8000:8000"
-    command: bash -c "./entrypoint.sh"
     volumes:
       - .:/code
     environment:
       - DEBUG=True
+    command: python manage.py runserver 0.0.0.0:8000
     networks:
       - web_network
     dns: 8.8.8.8
