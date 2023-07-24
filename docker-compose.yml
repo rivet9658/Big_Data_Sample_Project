@@ -3,12 +3,15 @@ version: "1"
 services:
   # Django 服務
   web:
+    build:
+        context: .
+        dockerfile: Dockerfile
     image: big_data_sample_project
     container_name: big_data_sample_project
     restart: always
     ports:
       - "8000:8000"
-    command: sh -c "python manage.py makemigrations && python manage.py migrate && echo \"from django.contrib.auth.models import User; User.objects.create_superuser('superadmin', 'superadmin@gmail.com', '1qaz@WSX3edc')\" | python manage.py shell && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "./entrypoint.sh"
     volumes:
       - .:/code
     environment:

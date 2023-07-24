@@ -119,7 +119,7 @@ CORS_EXPOSE_HEADERS = [
     "Authorization"
 ]
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [os.getenv("WITHOUT_HTTPS_DOMAINS")]
 CORS_ALLOWED_ORIGINS = [] + [os.getenv("DOMAINS")]
 CSRF_TRUSTED_ORIGINS = [] + [os.getenv("DOMAINS")]
 
