@@ -1,5 +1,6 @@
 # 第一次部屬會執行資料遷移及創建一超級使用者
-if [ ! -f /.firstrun ];then
+if [ ! -f /.firstrun ]
+then
 	touch /.firstrun
     python manage.py makemigrations
     python manage.py migrate
