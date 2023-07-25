@@ -51,7 +51,7 @@
 
 ### API 簡介
 
-這裡會簡單介紹 token 的獲取及更新方法，以及文章基本的 crud 功能，詳細 API 資訊請先啟動服務後移至 http://{ip}:8000/swagger/sample_prj/ 查看。
+這裡會簡單介紹 token 的獲取及更新方法，以及文章基本的 crud 功能，詳細 API 資訊請先啟動服務後移至 `http://{ip}:8000/swagger/sample_prj/` 查看。
 
 **獲取 token**
 
