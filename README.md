@@ -270,7 +270,7 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X DELE
 
 ### 取得專案
 ```
-git clone git@github.com:rivet9658/Big_Data_Sample_Project.git
+git clone https://github.com/rivet9658/Big_Data_Sample_Project.git
 ```
 
 ### 移動到專案內
