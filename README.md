@@ -92,7 +92,15 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://
             "title": "《乘風2023》十大人氣選手聲量排行　成熟姐姐們魅力霸榜　Ella、A-Lin、美依禮芽你pick誰？",
             "introduction": "誰說只有青春無敵？這些乘風破浪的姐姐們帶你看見不一樣的致命吸引力！",
             "publish_datetime": "2023-06-16T10:00:00+08:00",
-            "image_list": [],
+            "image_list": [
+                {
+                    "id": 2,
+                    "order": 0,
+                    "image": "/static/images/article/1/0/%E4%BC%8A%E5%B8%83.jpg",
+                    "name": "測試圖片.jpg",
+                    "source": "https://dailyview.tw/"
+                }
+            ],
             "have_paragraph": [
                 {
                     "id": 1,
@@ -106,7 +114,9 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://
             "have_tag": [
                 "乘風2023"
             ],
-            "have_comment": []
+            "have_comment": [
+                1
+            ]
         }
     ]
 }
