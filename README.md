@@ -47,13 +47,12 @@
 
 * 心情(emoji)：包含基本
 
-* 驗證機制：
-以 JWT 作為驗證機制，請使用以下 API 來獲取及更新 token
+* 驗證機制：以 JWT 作為驗證機制，請使用以下 API 來獲取及更新 token
 
 獲取 token
 `POST /api/token/`
 ```
-curl -i -H 'Accept: application/json' -d 'username={your username}&password={your password}' http://{your ip}:8000/api/token/
+curl -i -H 'Accept: application/json' -d 'username={your_sername}&password={your_password}' http://{your_ip}:8000/api/token/
 ```
 結果範例
 ```
@@ -65,7 +64,7 @@ curl -i -H 'Accept: application/json' -d 'username={your username}&password={you
 更新 token
 `POST /api/token/refresh/`
 ```
-curl -i -H 'Accept: application/json' -d 'refresh={your refresh token}' http://{your ip}:8000/api/token/refresh/
+curl -i -H 'Accept: application/json' -d 'refresh={your_refresh_token}' http://{your_ip}:8000/api/token/refresh/
 ```
 結果範例
 ```
