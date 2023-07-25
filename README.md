@@ -51,6 +51,7 @@
 
 ### API 簡介
 **獲取 token**
+
 `POST /api/token/`
 ```
 curl -i -H 'Accept: application/json' -d 'username={username}&password={password}' http://{ip}:8000/api/token/
@@ -63,6 +64,7 @@ curl -i -H 'Accept: application/json' -d 'username={username}&password={password
 }
 ```
 **更新 token**
+
 `POST /api/token/refresh/`
 ```
 curl -i -H 'Accept: application/json' -d 'refresh={refresh_token}' http://{ip}:8000/api/token/refresh/
@@ -74,7 +76,38 @@ curl -i -H 'Accept: application/json' -d 'refresh={refresh_token}' http://{ip}:8
 }
 ```
 **獲取所有文章列表**
-`GET /api/sample_prj/article/?is_publish={true_or_false_or_blank}&start_publish_date={date_format}&end_publish_date={date_format}&tags={list[string]}`
+
+`GET /api/sample_prj/article/`
 ```
 curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://{ip}:8000/api/sample_prj/article/?is_publish={true_or_false_or_blank}&start_publish_date={date_format}&end_publish_date={date_format}&tags={list[string]}
+```
+**結果範例**
+```
+{
+    "msg": "獲得文章列表成功",
+    "data": [
+        {
+            "id": 1,
+            "author": "superadmin",
+            "title": "《乘風2023》十大人氣選手聲量排行　成熟姐姐們魅力霸榜　Ella、A-Lin、美依禮芽你pick誰？",
+            "introduction": "誰說只有青春無敵？這些乘風破浪的姐姐們帶你看見不一樣的致命吸引力！",
+            "publish_datetime": "2023-06-16T10:00:00+08:00",
+            "image_list": [],
+            "have_paragraph": [
+                {
+                    "id": 1,
+                    "order": 1
+                },
+                {
+                    "id": 2,
+                    "order": 2
+                }
+            ],
+            "have_tag": [
+                "乘風2023"
+            ],
+            "have_comment": []
+        }
+    ]
+}
 ```
