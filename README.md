@@ -57,7 +57,7 @@
 
 `POST /api/token/`
 ```
-curl -i -H 'Accept: application/json' -d 'username={username}&password={password}' http://{ip}:8000/api/token/
+curl -i -H 'Accept: application/json' -X POST -d 'username={username}&password={password}' http://{ip}:8000/api/token/
 ```
 **結果範例**
 ```
@@ -70,7 +70,7 @@ curl -i -H 'Accept: application/json' -d 'username={username}&password={password
 
 `POST /api/token/refresh/`
 ```
-curl -i -H 'Accept: application/json' -d 'refresh={refresh_token}' http://{ip}:8000/api/token/refresh/
+curl -i -H 'Accept: application/json' -X POST -d 'refresh={refresh_token}' http://{ip}:8000/api/token/refresh/
 ```
 **結果範例**
 ```
@@ -82,7 +82,7 @@ curl -i -H 'Accept: application/json' -d 'refresh={refresh_token}' http://{ip}:8
 
 `GET /api/sample_prj/article/`
 ```
-curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://{ip}:8000/api/sample_prj/article/?is_publish={true_or_false_or_blank}&start_publish_date={date_format}&end_publish_date={date_format}&tags={list[string]}
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X GET http://{ip}:8000/api/sample_prj/article/?is_publish={true_or_false_or_blank}&start_publish_date={date_format}&end_publish_date={date_format}&tags={list[string]}
 ```
 **結果範例**
 ```
@@ -128,7 +128,7 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://
 
 `GET /api/sample_prj/article/{id}/`
 ```
-curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://{ip}:8000/api/sample_prj/article/{id}/
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X GET http://{ip}:8000/api/sample_prj/article/{id}/
 ```
 **結果範例**
 ```
@@ -172,7 +172,7 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://
 
 `POST /api/sample_prj/article/`
 ```
-curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -d "title={string}&introduction={string}&is_publish={true_or_false}&publish_datetime={datetime_format}&paragraph_list={list[{title: string, content: string, order: number, style_code: string}]}&tag_list={list[{name: string}]}" http://{ip}:8000/api/sample_prj/article/
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X POST -d "title={string}&introduction={string}&is_publish={true_or_false}&publish_datetime={datetime_format}&paragraph_list={list[{title: string, content: string, order: number, style_code: string}]}&tag_list={list[{name: string}]}" http://{ip}:8000/api/sample_prj/article/
 ```
 **結果範例**
 ```
