@@ -51,8 +51,9 @@
 以 JWT 作為驗證機制，請使用以下 API 來獲取及更新 token
 
 獲取 token
+`POST /api/token/`
 ```
-http://{ip}:8000/api/token/
+curl -i -H 'Accept: application/json' -d 'username={your username}&password={your password}' http://{your ip}:8000/api/token/
 ```
 結果範例
 ```
@@ -62,8 +63,9 @@ http://{ip}:8000/api/token/
 }
 ```
 更新 token
+`POST /api/token/refresh/`
 ```
-http://{ip}:8000/api/token/refresh/
+curl -i -H 'Accept: application/json' -d 'refresh={your refresh token}' http://{your ip}:8000/api/token/refresh/
 ```
 結果範例
 ```
