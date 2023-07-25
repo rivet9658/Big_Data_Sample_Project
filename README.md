@@ -281,8 +281,19 @@ SUPERADMIN_PASSWORD:1qaz@WSX3edc  # django 預設超級使用者密碼
 ```
 
 ### 資料夾說明
+- article - 文章 App
+- base_app - 基底 App，用以給其他 App 的 model 繼承
+- big_data_sample_prj - django 設定用
+- comment - 評論 App
+- emoji - 心情 App
+- media - 引用媒體 App
+- paragraph - 段落 App
+- tag - 標籤 App
 
 ### 專案技術
 * Python: 3.7.9
 * Django 3.2.20
 * MariaDB: 10.11.4
+
+## 聯絡作者
+- [gmail](bo.chen.lin8831@gmail.com)
