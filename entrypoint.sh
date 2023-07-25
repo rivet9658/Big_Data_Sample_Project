@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 等待資料庫就緒
+while ! true >/dev/tcp/db/3306; do
+  echo "Waiting for the database to be ready..."
+  sleep 1
+done
+
 # 資料遷移
 python manage.py makemigrations
 python manage.py migrate
