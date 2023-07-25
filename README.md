@@ -296,4 +296,4 @@ SUPERADMIN_PASSWORD:1qaz@WSX3edc  # django 預設超級使用者密碼
 * MariaDB: 10.11.4
 
 ## 聯絡作者
-- [gmail](bo.chen.lin8831@gmail.com)
+- gmail: bo.chen.lin8831@gmail.com
