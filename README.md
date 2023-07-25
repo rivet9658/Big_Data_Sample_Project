@@ -53,7 +53,7 @@
 **獲取 token**
 `POST /api/token/`
 ```
-curl -i -H 'Accept: application/json' -d 'username={your_sername}&password={your_password}' http://{your_ip}:8000/api/token/
+curl -i -H 'Accept: application/json' -d 'username={username}&password={password}' http://{ip}:8000/api/token/
 ```
 **結果範例**
 ```
@@ -65,11 +65,16 @@ curl -i -H 'Accept: application/json' -d 'username={your_sername}&password={your
 **更新 token**
 `POST /api/token/refresh/`
 ```
-curl -i -H 'Accept: application/json' -d 'refresh={your_refresh_token}' http://{your_ip}:8000/api/token/refresh/
+curl -i -H 'Accept: application/json' -d 'refresh={refresh_token}' http://{ip}:8000/api/token/refresh/
 ```
 **結果範例**
 ```
 {
   "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkwMjk1Nzg4LCJpYXQiOjE2OTAyOTUxNjIsImp0aSI6IjA2MzBlZDIxODU0YTRlYmI5NWQ2YjdiMzVmYjA2ZGRjIiwidXNlcl9pZCI6MX0.kxWQyFv0PSY7G8cAd8B0shKD9jMe00V9S-Z3NFSl8BY"
 }
+```
+**獲取所有文章列表**
+`GET /api/sample_prj/article/?is_publish={true_or_false_or_blank}&start_publish_date={date_format}&end_publish_date={date_format}&tags={list[string]}`
+```
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://{ip}:8000/api/sample_prj/article/?is_publish={true_or_false_or_blank}&start_publish_date={date_format}&end_publish_date={date_format}&tags={list[string]}
 ```
