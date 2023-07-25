@@ -28,7 +28,7 @@
 
 ### API 簡介
 
-這裡會簡單介紹 token 的獲取及更新方法，以及文章基本的 crud 功能，詳細 API 資訊請先啟動服務後移至 `http://{ip}:8000/swagger/sample_prj/` 查看，底下 {ip} 參數請調整成自己運行服務機器的 ip。
+這裡會簡單介紹 token 的獲取及更新方法，以及文章基本的 crud 功能，詳細 API 資訊請先啟動服務後移至 `http://{ip}:8000/swagger/sample_prj/` 查看，底下 `{ip}` 參數請調整成自己運行服務機器的 ip。
 
 **獲取 token**
 
@@ -256,6 +256,7 @@ cd Big_Data_Sample_Project
 ```
 
 ### 運行專案
+輸入以下指令來運行專案，會自動執行資料遷移及創建一超級使用者，帳密詳情請參考上方測試帳號密碼部分
 ```
 sh deploy.sh
 ```
@@ -265,6 +266,8 @@ sh deploy.sh
 ```
 http://{ip}:8000/swagger/sample_prj/
 ```
+### 環境變數說明
+
 
 ### 專案技術
 * Python: 3.7.9
