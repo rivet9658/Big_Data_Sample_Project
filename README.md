@@ -256,7 +256,7 @@ cd Big_Data_Sample_Project
 ```
 
 ### 運行專案
-輸入以下指令來運行專案，會自動執行資料遷移及創建一超級使用者，帳密詳情請參考上方測試帳號密碼部分
+輸入以下指令來運行專案，會自動執行資料遷移並創建一超級使用者，帳密詳情請參考上方測試帳號密碼部分
 ```
 sh deploy.sh
 ```
@@ -266,8 +266,21 @@ sh deploy.sh
 ```
 http://{ip}:8000/swagger/sample_prj/
 ```
-### 環境變數說明
 
+### 環境變數說明
+```env
+DB_NAME=big_data_sample_prj  # 資料庫名稱
+DB_USERNAME=root  # 資料庫登入使用者名稱
+DB_PASSWORD=1qaz@WS3edc  # 資料庫登入使用者密碼
+DB_HOST=db  # 資料庫 Host
+DB_PORT=3306  # 資料庫 Port
+WITHOUT_HTTPS_DOMAINS=*  # DOMAIN 設定
+DOMAINS=http://0.0.0.0:8000  # DOMAIN 設定
+ANONYMOUS_PASSWORD:3edc@WSX1qaz  # django 預設匿名使用者密碼
+SUPERADMIN_PASSWORD:1qaz@WSX3edc  # django 預設超級使用者密碼
+```
+
+### 資料夾說明
 
 ### 專案技術
 * Python: 3.7.9
