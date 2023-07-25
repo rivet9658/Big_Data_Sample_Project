@@ -21,6 +21,19 @@
 3. 如果要 refresh token 請打 http://服務運行的ip:8000/api/token/refresh/ 並帶入你的 refresh token 來重新獲得 access toekn。
 4. 詳細的 API 說明請參考 swagger 文檔，路徑為 http://服務運行的ip:8000/swagger/sample_prj/。
 
+# Big Data Co., Ltd. 範例專案
+
+> 此專案為 https://dailyview.tw/ 裡熱門文章功能的範例 API，包刮文章、段落新增，圖片的上傳，標籤、引用媒體的設定，以及不同使用者可對各文章進行評論等。
+
+## 功能
+
+** 測試帳號密碼 **
+
+```
+帳號： superadmin
+密碼： 1qaz@WSX3edc
+```
+
 ### 主要功能介紹
 * 文章(article)：包含基本
 
@@ -35,7 +48,8 @@
 * 心情(emoji)：包含基本
 
 * 驗證機制：
-以 JWT 作為驗證機制，請使用以下 API 來獲取及更新 token，
+以 JWT 作為驗證機制，請使用以下 API 來獲取及更新 token
+
 獲取 token
 ```
 http://{ip}:8000/api/token/
@@ -53,5 +67,7 @@ http://{ip}:8000/api/token/refresh/
 ```
 結果範例
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5MDI5Njk2MiwiaWF0IjoxNjkwMjk1MTYyLCJqdGkiOiJhNTdmMDY3YWM0ODc0YzkwOGJmNzM4Yzg4Y2U5OTExZSIsInVzZXJfaWQiOjF9.65Zs903KI3e4MJK9KeXYJUD8axyI8uJGx2GVleo0As0
+{
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkwMjk1Nzg4LCJpYXQiOjE2OTAyOTUxNjIsImp0aSI6IjA2MzBlZDIxODU0YTRlYmI5NWQ2YjdiMzVmYjA2ZGRjIiwidXNlcl9pZCI6MX0.kxWQyFv0PSY7G8cAd8B0shKD9jMe00V9S-Z3NFSl8BY"
+}
 ```
