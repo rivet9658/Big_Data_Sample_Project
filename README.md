@@ -263,3 +263,17 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X DELE
     }
 }
 ```
+
+## 安裝
+
+以下將引導你如何安裝此專案到你的電腦上。
+
+### 取得專案
+```
+git clone git@github.com:hsiangfeng/README-Example-Template.git
+```
+
+### 移動到專案內
+```
+cd README-Example-Template
+```
