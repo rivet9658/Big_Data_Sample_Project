@@ -50,6 +50,9 @@
 * 驗證機制：本專案採用 JWT 來做為驗證機制。
 
 ### API 簡介
+
+這裡會簡單介紹 token 的獲取及更新方法，以及文章基本的 crud 功能，詳細 API 資訊請先啟動服務後移至 http://{ip}:8000/swagger/sample_prj/ 查看。
+
 **獲取 token**
 
 `POST /api/token/`
@@ -119,5 +122,86 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://
             ]
         }
     ]
+}
+```
+**獲取單一文章**
+
+`GET /api/sample_prj/article/{id}/`
+```
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://{ip}:8000/api/sample_prj/article/{id}/
+```
+**結果範例**
+```
+{
+    "msg": "獲得單一文章成功",
+    "data": {
+        "id": 1,
+        "author": "superadmin",
+        "title": "《乘風2023》十大人氣選手聲量排行　成熟姐姐們魅力霸榜　Ella、A-Lin、美依禮芽你pick誰？",
+        "introduction": "誰說只有青春無敵？這些乘風破浪的姐姐們帶你看見不一樣的致命吸引力！",
+        "publish_datetime": "2023-06-16T10:00:00+08:00",
+        "image_list": [
+            {
+                "id": 2,
+                "order": 0,
+                "image": "/static/images/article/1/0/%E4%BC%8A%E5%B8%83.jpg",
+                "name": "伊布.jpg",
+                "source": "http://127.0.0.1:8000/swagger/sample_prj/"
+            }
+        ],
+        "have_paragraph": [
+            {
+                "id": 1,
+                "order": 1
+            },
+            {
+                "id": 2,
+                "order": 2
+            }
+        ],
+        "have_tag": [
+            "乘風2023"
+        ],
+        "have_comment": [
+            1
+        ]
+    }
+}
+```
+**新增文章**
+
+`POST /api/sample_prj/article/`
+```
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -d "title={string}&introduction={string}&is_publish={true_or_false}&publish_datetime={datetime_format}&paragraph_list={list[{title: string, content: string, order: number, style_code: string}]}&tag_list={list[{name: string}]}" http://{ip}:8000/api/sample_prj/article/
+```
+**結果範例**
+```
+{
+    "msg": "文章新增成功",
+    "data": {
+        "title": "《乘風2023》十大人氣選手聲量排行　成熟姐姐們魅力霸榜　Ella、A-Lin、美依禮芽你pick誰？",
+        "introduction": "誰說只有青春無敵？這些乘風破浪的姐姐們帶你看見不一樣的致命吸引力！",
+        "is_publish": true,
+        "publish_datetime": "2023-06-16 10:00:00.000000",
+        "paragraph_list": [
+            {
+                "title": "熟齡姐姐魅力無法擋！",
+                "content": "由中國芒果TV推出的選秀節目《乘風破浪的姐姐》今年已經來到第四季，不同於以青春少女為主的選秀，《乘風破浪的姐姐》帶大家看見熟齡「姐姐」們獨有的迷人魅力。在第四季節目《乘風2023》中，邀請到33位28歲以上的女性藝人參與，當中也不乏許多來自臺灣的選手...",
+                "order": 2,
+                "style_code": "1"
+            },
+            {
+                "title": "NO. 10 朱珠（38歲）",
+                "content": "IG：zhuzhuclubheaven/n在MTV全球音樂電視臺舉辦的「VJ大賽」（Video Jockey）中獲得北京賽區冠軍的朱珠，自此加入MTV並開始主持音樂節目《MTV天籟村》，之後便開啟了她的歌手之路。在2009年發行首張同名專輯《朱珠》後，朱珠獲得CCTV-MTV音樂盛典內地年度最受歡迎潛力歌手的提名...",
+                "order": 2,
+                "style_code": "2"
+            }
+        ],
+        "tag_list": [
+            {
+                "name": "乘風2023"
+            }
+        ]
+    }
 }
 ```
