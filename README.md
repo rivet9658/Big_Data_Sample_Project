@@ -145,8 +145,8 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" http://
                 "id": 2,
                 "order": 0,
                 "image": "/static/images/article/1/0/%E4%BC%8A%E5%B8%83.jpg",
-                "name": "伊布.jpg",
-                "source": "http://127.0.0.1:8000/swagger/sample_prj/"
+                "name": "測試圖片.jpg",
+                "source": "https://dailyview.tw/"
             }
         ],
         "have_paragraph": [
@@ -202,6 +202,64 @@ curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -d "tit
                 "name": "乘風2023"
             }
         ]
+    }
+}
+```
+**更新文章**
+
+`PUT /api/sample_prj/article/{id}/`
+```
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X PUT -d "title={string}&introduction={string}&is_publish={true_or_false}&publish_datetime={datetime_format}&paragraph_list={list[{title: string, content: string, order: number, style_code: string}]}&tag_list={list[{name: string}]}" http://{ip}:8000/api/sample_prj/article/{id}/
+```
+**結果範例**
+```
+{
+    "msg": "文章更新成功",
+    "data": {
+        "title": "那些年大家找不到的停車位！揭密讓鄉民最痛苦的共享車租用困擾",
+        "introduction": "近年來，共享汽機車逐漸成為大眾日常使用的交通方式，哪些優點最吸引你呢？",
+        "is_publish": true,
+        "publish_datetime": "2023-07-17 10:00:00.000000",
+        "paragraph_list": [
+            {
+                "title": "新時代交通趨勢",
+                "content": "暑假到了，全台各地都湧現出遊潮，你是否也收拾好行李、準備出遊去了呢？隨著科技服務日新月異，許多民眾出遊時的交通工具，比起以往更多了「共享汽機車」這個新選項，共享汽機車隨時租、隨時還的便利性，滿足民眾多樣化的移動需求，這些共享移動服務儼然已深入你我的生活，成為新時代的交通趨勢...",
+                "order": 3,
+                "style_code": "1"
+            },
+            {
+                "title": "大家喜歡用共享車的原因有哪些？",
+                "content": "「移動方式彈性又自由」是共享汽機車最大的優點，有接近6成的民眾都為此被吸引。相較於其他交通工具來說，不必受到班次、發車間距等限制，有需要時就能隨租隨用，不必擔心得在車站苦苦等候發車，或是車次誤點導致後續行程受影響，想臨時改變行程的彈性度較高...",
+                "order": 4,
+                "style_code": "1"
+            },
+            {
+                "title": "填補大眾運輸網不足",
+                "content": "相對於熱鬧的市區，住在郊區環境相對清幽且不擁擠，不過最令人困擾的缺點就是大眾交通工具網可能較不完善。一般通勤路線還好說，但若臨時有其他需求，必須移動到公車、捷運、火車都不好到達的地方時，這時候擁有適合的代步工具就很重要了！這也是共享車能吸引郊區使用者的強勢原因之一...",
+                "order": 5,
+                "style_code": "1"
+            }
+        ],
+        "tag_list": [
+            {
+                "name": "旅遊"
+            }
+        ]
+    }
+}
+```
+**刪除文章**
+
+`DELETE /api/sample_prj/article/{id}/`
+```
+curl -i -H 'Accept: application/json' -H "Authorization: Bearer {token}" -X DELETE http://{ip}:8000/api/sample_prj/article/{id}/
+```
+**結果範例**
+```
+{
+    "msg": "文章刪除成功",
+    "data": {
+        "id": "1"
     }
 }
 ```
