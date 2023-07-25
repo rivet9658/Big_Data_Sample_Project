@@ -47,26 +47,27 @@
 
 * 心情(emoji)：包含基本
 
-* 驗證機制：以 JWT 作為驗證機制，請使用以下 API 來獲取及更新 token
+* 驗證機制：以 JWT 作為驗證機制
 
-獲取 token
+### API 簡介
+**獲取 token**
 `POST /api/token/`
 ```
 curl -i -H 'Accept: application/json' -d 'username={your_sername}&password={your_password}' http://{your_ip}:8000/api/token/
 ```
-結果範例
+**結果範例**
 ```
 {
   "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5MDI5Njk2MiwiaWF0IjoxNjkwMjk1MTYyLCJqdGkiOiJhNTdmMDY3YWM0ODc0YzkwOGJmNzM4Yzg4Y2U5OTExZSIsInVzZXJfaWQiOjF9.65Zs903KI3e4MJK9KeXYJUD8axyI8uJGx2GVleo0As0",
   "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkwMjk1NzYyLCJpYXQiOjE2OTAyOTUxNjIsImp0aSI6ImY2YWQ2MDQyMDM4MjQyNWFhM2I5OGMwZGEwMWRlZGNmIiwidXNlcl9pZCI6MX0.3KY06rOJifBlediE-SRecOh_zv-RZ8glnPq9Um6kyiE"
 }
 ```
-更新 token
+**更新 token**
 `POST /api/token/refresh/`
 ```
 curl -i -H 'Accept: application/json' -d 'refresh={your_refresh_token}' http://{your_ip}:8000/api/token/refresh/
 ```
-結果範例
+**結果範例**
 ```
 {
   "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkwMjk1Nzg4LCJpYXQiOjE2OTAyOTUxNjIsImp0aSI6IjA2MzBlZDIxODU0YTRlYmI5NWQ2YjdiMzVmYjA2ZGRjIiwidXNlcl9pZCI6MX0.kxWQyFv0PSY7G8cAd8B0shKD9jMe00V9S-Z3NFSl8BY"
