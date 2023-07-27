@@ -34,7 +34,7 @@ services:
       - MYSQL_ROOT_PASSWORD=1qaz@WS3edc
       - MYSQL_DATABASE=big_data_sample_prj
       - MYSQL_USER=admin
-      - MYSQL_PASSWORD=1qaz@WS3edc
+      - MYSQL_PASSWORD=1qaz@WSX3edc
       - MYSQL_CHARSET=utf8mb4
       - MYSQL_COLLATION=utf8mb4_unicode_ci
     networks:
