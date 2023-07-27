@@ -29,7 +29,7 @@ class EditCommentSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         now_requester = self.context['request'].user
-        instance.content = validated_data.get('content', instance.content)
+        instance.content = validated_data['content']
         instance.updated_user = now_requester
         instance.save()
         return instance

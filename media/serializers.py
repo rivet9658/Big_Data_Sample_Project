@@ -33,8 +33,8 @@ class EditMediaSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         now_requester = self.context['request'].user
-        instance.code = validated_data.get('code', instance.code)
-        instance.name = validated_data.get('name', instance.name)
+        instance.code = validated_data['code']
+        instance.name = validated_data['name']
         instance.image = validated_data['image']
         instance.save()
         instance.image_name = unquote(instance.image.url.split('/')[-1])

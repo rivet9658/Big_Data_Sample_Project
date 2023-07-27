@@ -37,7 +37,7 @@ class UpdateTagSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         now_requester = self.context['request'].user
-        instance.name = validated_data.get('name', instance.name)
+        instance.name = validated_data['name']
         instance.updated_user = now_requester
         instance.save()
         return instance

@@ -39,9 +39,9 @@ class EditParagraphSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         now_requester = self.context['request'].user
-        instance.title = validated_data.get('title', instance.title)
-        instance.content = validated_data.get('content', instance.content)
-        instance.style_code = validated_data.get('style_code', instance.style_code)
+        instance.title = validated_data['title']
+        instance.content = validated_data['content']
+        instance.style_code = validated_data['style_code']
         instance.updated_user = now_requester
         instance.save()
         return instance
