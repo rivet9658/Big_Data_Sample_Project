@@ -1,9 +1,8 @@
 # package
 import os
 from dotenv import load_dotenv
-from django.db import models, transaction, IntegrityError, DatabaseError
+from django.db import models
 from django.contrib.auth.models import User
-from rest_framework.response import Response
 
 load_dotenv()
 
