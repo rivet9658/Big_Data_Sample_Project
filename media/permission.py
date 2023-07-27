@@ -1,10 +1,10 @@
 # package
 from rest_framework import permissions
 
-view_media_model = 'paragraph.view_mediamodel'
-add_media_model = 'paragraph.add_mediamodel'
-change_media_model = 'paragraph.change_mediamodel'
-delete_media_model = 'paragraph.delete_mediamodel'
+view_media_model = 'media.view_mediamodel'
+add_media_model = 'media.add_mediamodel'
+change_media_model = 'media.change_mediamodel'
+delete_media_model = 'media.delete_mediamodel'
 
 
 class MediaPermission(permissions.DjangoModelPermissions):

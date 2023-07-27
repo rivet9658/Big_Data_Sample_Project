@@ -1,10 +1,10 @@
 # package
 from rest_framework import permissions
 
-view_emoji_model = 'paragraph.view_emojimodel'
-add_emoji_model = 'paragraph.add_emojimodel'
-change_emoji_model = 'paragraph.change_emojimodel'
-delete_emoji_model = 'paragraph.delete_emojimodel'
+view_emoji_model = 'emoji.view_emojimodel'
+add_emoji_model = 'emoji.add_emojimodel'
+change_emoji_model = 'emoji.change_emojimodel'
+delete_emoji_model = 'emoji.delete_emojimodel'
 
 
 class EmojiPermission(permissions.DjangoModelPermissions):

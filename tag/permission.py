@@ -1,10 +1,10 @@
 # package
 from rest_framework import permissions
 
-view_tag_model = 'paragraph.view_tagmodel'
-add_tag_model = 'paragraph.add_tagmodel'
-change_tag_model = 'paragraph.change_tagmodel'
-delete_tag_model = 'paragraph.delete_tagmodel'
+view_tag_model = 'tag.view_tagmodel'
+add_tag_model = 'tag.add_tagmodel'
+change_tag_model = 'tag.change_tagmodel'
+delete_tag_model = 'tag.delete_tagmodel'
 
 
 class TagPermission(permissions.DjangoModelPermissions):

@@ -1,10 +1,10 @@
 # package
 from rest_framework import permissions
 
-view_comment_model = 'paragraph.view_commentmodel'
-add_comment_model = 'paragraph.add_commentmodel'
-change_comment_model = 'paragraph.change_commentmodel'
-delete_comment_model = 'paragraph.delete_commentmodel'
+view_comment_model = 'comment.view_commentmodel'
+add_comment_model = 'comment.add_commentmodel'
+change_comment_model = 'comment.change_commentmodel'
+delete_comment_model = 'comment.delete_commentmodel'
 
 
 class CommentPermission(permissions.DjangoModelPermissions):
