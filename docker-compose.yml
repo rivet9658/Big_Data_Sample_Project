@@ -31,7 +31,7 @@ services:
       - ./mariadb:/var/lib/mysql
       - ./mariadb/log:/var/log
     environment:
-      - MYSQL_ROOT_PASSWORD=1qaz@WS3edc
+      - MYSQL_ROOT_PASSWORD=1qaz@WSX3edc
       - MYSQL_DATABASE=big_data_sample_prj
       - MYSQL_USER=admin
       - MYSQL_PASSWORD=1qaz@WSX3edc
