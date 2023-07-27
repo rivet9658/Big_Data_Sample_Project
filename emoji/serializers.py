@@ -33,10 +33,10 @@ class CreateEmojiSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         now_requester = self.context['request'].user
-        for tag_data in validated_data['emoji_list']:
+        for emoji_data in validated_data['emoji_list']:
             EmojiModel.objects.create(
-                code=tag_data['code'],
-                name=tag_data['name'],
+                code=emoji_data['code'],
+                name=emoji_data['name'],
                 create_user=now_requester,
                 updated_user=now_requester
             )
